@@ -3,5 +3,4 @@
 ## メンバー
 
 ikura-hamu
-
 Alietty
