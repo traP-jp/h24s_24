@@ -3,6 +3,7 @@
 ## メンバー
 
 ikura-hamu
+tidus
 zoi_dayo
 
 
