@@ -5,7 +5,7 @@
 ikura-hamu
 tidus
 zoi_dayo
-
+Alietty
 
 ## 開発者クイックスタート
 
@@ -41,3 +41,4 @@ npm run build
 ワークスペースで推奨されている拡張機能を入れてください
 
 `.vscode/settings-template.json` をコピーして `.vscode/settings.json` を作ってください
+
