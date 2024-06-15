@@ -3,7 +3,6 @@ import { Icon } from '@iconify/vue';
 </script>
 
 <template>
-
   <nav class="side-navigation">
     <router-link to="/" class="side-navigation-link" exact-active-class="current">
       <Icon icon="mdi:home" class="side-navigation-icon" />
