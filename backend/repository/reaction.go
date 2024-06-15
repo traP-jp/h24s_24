@@ -64,6 +64,10 @@ func (rr *ReactionRepository) PostReaction(ctx context.Context, postID uuid.UUID
 }
 
 func (rr *ReactionRepository) GetReactionsByPostIDs(ctx context.Context, postIDs []uuid.UUID) (map[uuid.UUID][]*domain.Reaction, error) {
+	if len(postIDs) == 0 {
+		return nil, nil
+	}
+
 	query, args, err := sqlx.In(
 		"SELECT post_id, reaction_id, COUNT(*) as count FROM posts_reactions WHERE post_id IN (?) GROUP BY post_id, reaction_id",
 		postIDs)

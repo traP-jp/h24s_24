@@ -178,6 +178,10 @@ func (pr *PostRepository) GetAncestors(ctx context.Context, postID uuid.UUID) ([
 }
 
 func (pr *PostRepository) GetChildrenCountByParentIDs(ctx context.Context, parentIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	if len(parentIDs) == 0 {
+		return nil, nil
+	}
+
 	query, args, err := sqlx.In("SELECT parent_id, COUNT(*) FROM posts WHERE parent_id IN (?) GROUP BY parent_id", parentIDs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create query: %w", err)
