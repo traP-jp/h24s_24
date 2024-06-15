@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import Avatar from "@/components/Avatar.vue";
 
-defineProps<{
-  name: string
+const props = defineProps<{
+  name: string,
+  date: Date,
+  content: string,
+  stamp_counts: number[]
 }>()
+
 </script>
 
 <template>
@@ -17,28 +21,28 @@ defineProps<{
         <span class="post-date">10分前</span>
       </div>
       <div class="post-message">
-        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        {{ content }}
       </div>
       <div class="post-stamps">
         <div class="post-stamp">
           <span class="post-stamp-icon">❤️</span>
-          <span class="post-stamp-count">100</span>
+          <span class="post-stamp-count">{{ stamp_counts[0] }}</span>
         </div>
         <div class="post-stamp">
           <span class="post-stamp-icon">🔥</span>
-          <span class="post-stamp-count">100</span>
+          <span class="post-stamp-count">{{ stamp_counts[1] }}</span>
         </div>
         <div class="post-stamp">
           <span class="post-stamp-icon">💧</span>
-          <span class="post-stamp-count">100</span>
+          <span class="post-stamp-count">{{ stamp_counts[2] }}</span>
         </div>
         <div class="post-stamp">
           <span class="post-stamp-icon">😢</span>
-          <span class="post-stamp-count">100</span>
+          <span class="post-stamp-count">{{ stamp_counts[3] }}</span>
         </div>
         <div class="post-stamp clicked">
           <span class="post-stamp-icon">🤔</span>
-          <span class="post-stamp-count">100</span>
+          <span class="post-stamp-count">{{ stamp_counts[4] }}</span>
         </div>
       </div>
     </div>
@@ -51,12 +55,14 @@ $highlight: orange;
 .post {
   display: flex;
   padding: 10px;
+
   &-author-icon {
     padding-right: 10px;
   }
 
   &-content {
     width: 450px;
+
     .post-header {
       margin-bottom: 5px;
 
