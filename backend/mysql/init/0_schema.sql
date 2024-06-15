@@ -16,5 +16,6 @@ CREATE TABLE IF NOT EXISTS posts_reactions (
   reaction_id INT NOT NULL,
   post_id VARCHAR(36) NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (post_id) REFERENCES posts(id)
+  FOREIGN KEY (post_id) REFERENCES posts(id),
+  UNIQUE KEY (user_name, post_id, reaction_id)
 );

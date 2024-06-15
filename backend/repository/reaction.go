@@ -53,3 +53,12 @@ func (rr *ReactionRepository) GetReactionsByPostID(ctx context.Context, postID u
 
 	return reactions, nil
 }
+
+func (rr *ReactionRepository) PostReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error {
+	_, err := rr.DB.Exec("INSERT INTO posts_reactions (post_id, reaction_id, user_name) VALUES (?, ?, ?)", postID, reactionID, userName)
+	if err != nil {
+		return fmt.Errorf("failed to post reaction: %w", err)
+	}
+
+	return nil
+}
