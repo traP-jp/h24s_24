@@ -20,10 +20,9 @@ const canPost = computed(() => {
       <Avatar :name="name" size="48px"></Avatar>
     </div>
     <div class="new-post-input-section">
-      <textarea type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent" />
+      <textarea type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent"/>
       <div class="post-footer">
-        <span v-if="canPost">{{inputContent.length}}/280文字</span>
-        <span v-if="!canPost">文字数の上限は280文字です</span>
+        <span :class="!canPost ? 'post-charcount-warn' : undefined">{{ inputContent.length }}/280文字</span>
         <span class="post-button">
           <Button :disabled="!canPost">投稿する</Button>
         </span>
@@ -60,6 +59,10 @@ const canPost = computed(() => {
     .post-footer {
       margin: 8px;
       text-align: right;
+
+      span.post-charcount-warn {
+        color: red;
+      }
 
       .post-button {
         margin-left: 20px;
