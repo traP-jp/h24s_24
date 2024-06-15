@@ -2,29 +2,24 @@
 
 import Button from "./Button.vue"
 import Avatar from "./Avatar.vue"
-import {ref} from "vue"
+import { ref, computed } from "vue"
 
 const inputContext = ref('')
-let ButtonVisible = ref(true)
+const ButtonVisible = ref(false)
 
-function checkLength() {
-  if (inputContext.value.length > 280) {
-    ButtonVisible.value = false
-  } else {
-    ButtonVisible.value = true
-  }
-}
 
 </script>
 
 <template>
-  <div class="newPostSection">
+  <div class="new-post-section">
     <div class="author-icon">
       <Avatar name="" size="48px"></Avatar>
     </div>
-    <div class="newPostInputSection">
+    <div class="new-post-input-section">
       <input type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContext"
-             @input="checkLength">
+             @input="ButtonVisible = computed(
+              () => {return (inputContext.length == 0) || (inputContext.length > 5) ? false : true 
+              })"> 
       <p v-if="!ButtonVisible">文字数の上限は280文字です</p>
       <div class="post-button" align="right">
         <Button id="canPost" :enabled="ButtonVisible">投稿する</Button>
@@ -34,12 +29,12 @@ function checkLength() {
 </template>
 
 <style lang="scss" scoped>
-.newPostSection {
+.new-post-section {
   width: 480px;
   padding: 16px;
   display: flex;
 
-  .newPostInputSection {
+  .new-post-input-section {
     width: 100%;
     margin-left: 8px;
 
