@@ -3,9 +3,13 @@ package handler
 import (
 	"errors"
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/traP-jp/h24s_24/converter"
+	"github.com/traP-jp/h24s_24/converter/mock"
 	"github.com/traP-jp/h24s_24/repository"
 )
 
@@ -26,7 +30,19 @@ func Start() {
 		log.Fatalf("failed to get reaction repository: %v\n", err)
 	}
 
-	ph := &PostHandler{PostRepository: pr, ReactionRepository: rr}
+	// ローカルのときはモックを使う
+	var cvt PostConverter
+	if local, err := strconv.ParseBool(os.Getenv("LOCAL")); err == nil && local {
+		log.Println("using mock converter")
+		cvt = &mock.MockConverter{}
+	} else {
+		cvt, err = converter.NewOpenAI()
+		if err != nil {
+			log.Fatalf("failed to get OpenAI converter: %v\n", err)
+		}
+	}
+
+	ph := &PostHandler{PostRepository: pr, ReactionRepository: rr, pc: cvt}
 	rh := &ReactionHandler{rr: rr}
 
 	e.Use(middleware.Logger(), middleware.Recover())
@@ -51,6 +67,6 @@ func getUserName(c echo.Context) (string, error) {
 	if !ok {
 		return "", errNoUsername
 	}
-	// username, _ := c.Get(userNameCtxKey).(string) // string以外になることは無い
+
 	return userName, nil
 }

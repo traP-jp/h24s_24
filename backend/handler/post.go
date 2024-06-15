@@ -72,7 +72,11 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 		parentID = postID
 	}
 
-	convertedMessage := post.Message
+	convertedMessage, err := ph.pc.ConvertMessage(ctx, post.Message)
+	if err != nil {
+		log.Printf("failed to convert message: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to convert message")
+	}
 
 	var rootID uuid.UUID
 	rootID, err = ph.PostRepository.CreatePost(ctx, postID, post.Message, convertedMessage, username, parentID)
