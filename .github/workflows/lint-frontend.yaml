@@ -1,6 +1,9 @@
 name: Lint Frontend
 
-on: push
+on:
+  push:
+    paths:
+      - 'frontend/**'
 
 jobs:
   lint:
@@ -25,7 +28,7 @@ jobs:
         run: npm run lint
 
       - name: Format
-        run: npm run format
+        run: npm run format:check
 
       - name: TypeCheck
         run: npm run type-check

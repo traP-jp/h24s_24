@@ -8,10 +8,24 @@ vars:
 tasks:
   up:
     cmds:
-      - docker compose up -d --build
+      - docker compose up --build
+    desc: アプリを起動
     silent: true
 
   down:
     cmds:
       - docker compose down
+    desc: アプリを停止。DB内のデータは削除されない
+    silent: true
+
+  clean:
+    cmds:
+      - docker compose down -v
+    desc: アプリを停止してDB内のデータを削除
+    silent: true
+
+  logs:
+    cmds:
+      - docker compose logs app -f
+    desc: アプリのログを表示
     silent: true
