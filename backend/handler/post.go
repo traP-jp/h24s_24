@@ -19,7 +19,9 @@ type PostRepository interface {
 	GetPostsAfter(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error)
 	GetLatestPosts(ctx context.Context, limit int) ([]*domain.Post, error)
 	GetPost(ctx context.Context, postID uuid.UUID) (*domain.Post, error)
-	GetChildren(ctx context.Context, parentID uuid.UUID) ([]uuid.UUID, error)
+	GetChildren(ctx context.Context, parentID uuid.UUID) ([]*domain.Post, error)
+	GetAncestors(ctx context.Context, postID uuid.UUID) ([]*domain.Post, error)
+	GetChildrenCountByParentIDs(ctx context.Context, parentIDs []uuid.UUID) (map[uuid.UUID]int, error)
 }
 
 type PostHandler struct {
@@ -192,21 +194,26 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 }
 
 type getPostResponse struct {
-	ID               uuid.UUID   `json:"id"`
-	UserName         string      `json:"userName"`
-	OriginalMessage  string      `json:"originalMessage"`
-	ConvertedMessage string      `json:"convertedMessage"`
-	RootID           uuid.UUID   `json:"rootID"`
-	ParentID         uuid.UUID   `json:"parentID"`
-	Reactions        []reaction  `json:"reactions"`
-	Children         []uuid.UUID `json:"children,omitempty"`
-	CreatedAt        time.Time   `json:"createdAt"`
+	ID               uuid.UUID       `json:"id"`
+	UserName         string          `json:"user_name"`
+	OriginalMessage  string          `json:"original_message"`
+	ConvertedMessage string          `json:"converted_message"`
+	Reactions        []reactionCount `json:"reactions"`
+	Children         []postInfo      `json:"children"`
+	Ancestors        []postInfo      `json:"ancestors"`
+	CreatedAt        time.Time       `json:"created_at"`
 }
 
-type reaction struct {
-	ID    int      `json:"id"`
-	Count int      `json:"count"`
-	Users []string `json:"users"`
+type postInfo struct {
+	Post struct {
+		ID               uuid.UUID       `json:"id"`
+		OriginalMessage  string          `json:"original_message"`
+		ConvertedMessage string          `json:"converted_message"`
+		UserName         string          `json:"user_name"`
+		CreatedAt        time.Time       `json:"created_at"`
+		Reactions        []reactionCount `json:"reactions"`
+	} `json:"post"`
+	ChildrenCount int `json:"children_count"`
 }
 
 func (ph *PostHandler) GetPostHandler(c echo.Context) error {
@@ -232,12 +239,11 @@ func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
 	}
 
-	resReactions := make([]reaction, 0, len(reactions))
+	resReactions := make([]reactionCount, 0, len(reactions))
 	for _, re := range reactions {
-		resReactions = append(resReactions, reaction{
+		resReactions = append(resReactions, reactionCount{
 			ID:    re.ReactionID,
 			Count: re.Count,
-			Users: re.Users,
 		})
 	}
 
@@ -246,24 +252,85 @@ func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 		UserName:         post.UserName,
 		OriginalMessage:  post.OriginalMessage,
 		ConvertedMessage: post.ConvertedMessage,
-		RootID:           post.RootID,
-		ParentID:         post.ParentID,
 		Reactions:        resReactions,
 		CreatedAt:        post.CreatedAt,
 	}
 
-	useChildren, err := strconv.ParseBool(c.QueryParam("children"))
+	children, err := ph.PostRepository.GetChildren(ctx, post.ID)
 	if err != nil {
-		useChildren = false
+		log.Printf("failed to get children: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get children")
 	}
-	if useChildren {
-		children, err := ph.PostRepository.GetChildren(ctx, post.ID)
-		if err != nil {
-			log.Printf("failed to get children: %v\n", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get children")
+
+	ancestors, err := ph.PostRepository.GetAncestors(ctx, post.ID)
+	if err != nil {
+		log.Printf("failed to get ancestors: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get ancestors")
+	}
+
+	result := make([][]postInfo, 0, 2)
+	for _, posts := range [][]*domain.Post{children, ancestors} {
+		postIDs := make([]uuid.UUID, 0, len(posts))
+		for _, post := range posts {
+			postIDs = append(postIDs, post.ID)
 		}
-		res.Children = children
+
+		postIDReactionMap, err := ph.ReactionRepository.GetReactionsByPostIDs(ctx, postIDs)
+		if err != nil {
+			log.Printf("failed to get reactions by post ids: %v\n", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions by post ids")
+		}
+
+		postIDChildrenCountMap, err := ph.PostRepository.GetChildrenCountByParentIDs(ctx, postIDs)
+		if err != nil {
+			log.Printf("failed to get posts count by parent ids: %v\n", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get posts count by parent ids")
+		}
+
+		postInfos := make([]postInfo, 0, len(posts))
+		for _, post := range posts {
+			pInfo := postInfo{
+				Post: struct {
+					ID               uuid.UUID       `json:"id"`
+					OriginalMessage  string          `json:"original_message"`
+					ConvertedMessage string          `json:"converted_message"`
+					UserName         string          `json:"user_name"`
+					CreatedAt        time.Time       `json:"created_at"`
+					Reactions        []reactionCount `json:"reactions"`
+				}{
+					ID:               post.ID,
+					OriginalMessage:  post.OriginalMessage,
+					ConvertedMessage: post.ConvertedMessage,
+					UserName:         post.UserName,
+					CreatedAt:        post.CreatedAt,
+				},
+				ChildrenCount: postIDChildrenCountMap[post.ID],
+			}
+
+			reactions, ok := postIDReactionMap[post.ID]
+			if !ok {
+				pInfo.Post.Reactions = []reactionCount{}
+				postInfos = append(postInfos, pInfo)
+				continue
+			}
+
+			reCount := make([]reactionCount, 0, len(reactions))
+			for _, re := range reactions {
+				reCount = append(reCount, reactionCount{
+					ID:    re.ReactionID,
+					Count: re.Count,
+				})
+			}
+			pInfo.Post.Reactions = reCount
+
+			postInfos = append(postInfos, pInfo)
+		}
+
+		result = append(result, postInfos)
 	}
+
+	res.Children = result[0]
+	res.Ancestors = result[1]
 
 	return c.JSON(http.StatusOK, res)
 }

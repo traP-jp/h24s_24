@@ -15,6 +15,7 @@ import (
 
 type ReactionRepository interface {
 	GetReactionsByPostID(ctx context.Context, postID uuid.UUID) ([]*domain.Reaction, error)
+	GetReactionsByPostIDs(ctx context.Context, postIDs []uuid.UUID) (map[uuid.UUID][]*domain.Reaction, error)
 	PostReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error
 }
 
