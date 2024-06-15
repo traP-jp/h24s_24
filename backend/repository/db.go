@@ -23,7 +23,19 @@ func NewDB() (*sqlx.DB, error) {
 		Collation:            "utf8mb4_general_ci",
 	}
 
-	db, err := sqlx.Connect("mysql", mysqlConf.FormatDSN())
+	var (
+		db  *sqlx.DB
+		err error
+	)
+
+	err = nil
+	for i := 0; i < 10; i++ {
+		if err != nil && i > 0 {
+			time.Sleep((time.Duration)(i) * time.Second)
+		}
+		db, err = sqlx.Connect("mysql", mysqlConf.FormatDSN())
+	}
+
 	if err != nil {
 		return nil, err
 	}
