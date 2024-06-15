@@ -42,7 +42,7 @@ export type CreatedPost = {
   /**
    * リプライのとき、親のID。そうでなければ自身のID
    */
-  parent_id?: string;
+  parent_id: string;
   /**
    * リプライのとき、そのおおもとのID。そうでなければ自身のID
    */
@@ -198,6 +198,6 @@ export type GetUserResponse = {
    */
   posts: Post[];
 };
-export const getUser = async (userId: string) => {
-  return fetchApi('GET', `/user/${userId}`);
+export const getUser = async (userName: string) => {
+  return fetchApi('GET', `/user/${userName}`);
 };
