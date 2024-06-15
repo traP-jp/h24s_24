@@ -72,6 +72,13 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 		parentID = postID
 	}
 
+	if post.Message == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "message empty")
+	}
+	if len(post.Message) > 280 {
+		return echo.NewHTTPError(http.StatusBadRequest, "message too long")
+	}
+
 	convertedMessage, err := ph.pc.ConvertMessage(ctx, post.Message)
 	if err != nil {
 		log.Printf("failed to convert message: %v\n", err)
