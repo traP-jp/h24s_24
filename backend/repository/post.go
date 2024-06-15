@@ -3,6 +3,9 @@ package repository
 import (
 	"cmp"
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -40,5 +43,26 @@ func NewPostRepository(db *sqlx.DB) *PostRepository {
 }
 
 func (pr *PostRepository) CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, parentID uuid.UUID) error {
+	db := pr.db
+	var rootID uuid.UUID
+
+	if postID == parentID { // リプライじゃない
+		rootID = postID
+	} else {
+		rootId := &uuid.UUID{}
+		err := db.Get(&rootId, "SELECT root_id FROM posts WHERE id=?", parentID)
+
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("not found: %w", err)
+		}
+		if err != nil {
+			return fmt.Errorf("failed to get %w", err)
+		}
+	}
+
+	_, err := db.Exec("INSERT INTO posts (id, original_message, converted_message, parent_id, root_id)", postID, originalMessage, convertedMessage, parentID, rootID)
+	if err != nil {
+		return fmt.Errorf("failed to insert: %w", err)
+	}
 	return nil
 }
