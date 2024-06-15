@@ -2,30 +2,33 @@
 import Avatar from './Avatar.vue'
 import { ref } from 'vue'
 
-const buttonCls = ref('reaction-button')
-function changeStatus(){
-    
-}
 </script>
 
 <template>
-    <div class="trendSection" >
-        <button :class="buttonCls" @click="changeStatus"> ❤️ </button>
-        <button :class="buttonCls"> 🔥 </button>
-        <button :class="buttonCls"> 💧 </button>
-        <button :class="buttonCls"> 😭 </button>
-        <button :class="buttonCls"> 🤔 </button>
+    <div class="iconArea" >
+        <input class="radioButton" id="radio0" type="radio" name="icons" value="0">
+        <label for="radio0">❤️</label>
+        <input class="radioButton" id="radio1" type="radio" name="icons" value="1">
+        <label for="radio1">🔥</label>
+        <input class="radioButton" id="radio2" type="radio" name="icons" value="2">
+        <label for="radio2">💧</label>
+        <input class="radioButton" id="radio3" type="radio" name="icons" value="3">
+        <label for="radio3">🥲</label>
+        <input class="radioButton" id="radio4" type="radio" name="icons" value="4">
+        <label for="radio4">🤔</label>
     </div>
 </template>
 
 <style lang="scss">
-.reaction-button{
-    width: 50px;
-    border:none;
+.radioButton {
+    display: none;
 }
-.selected-button{
-    width:50px;
-    background-color:;
+label {
+  background-color: white;
+  padding: 10px 20px;
+}
+.radioButton:checked + label {
+  background-color: pink;
 }
 
 </style>
