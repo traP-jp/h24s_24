@@ -102,3 +102,22 @@ func (rr *ReactionRepository) GetReactionsByPostIDs(ctx context.Context, postIDs
 
 	return reactionsMap, nil
 }
+
+func (rr *ReactionRepository) GetReactionsByUserName(ctx context.Context, postID uuid.UUID, userName string) ([]*domain.UserReaction, error) {
+	var userReactions []Reaction
+	err := rr.DB.Select(&userReactions, "SELECT * FROM posts_reactions WHERE post_id = ? AND user_name = ?", postID, userName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reactions by user name: %w", err)
+	}
+
+	userReactionsDomain := make([]*domain.UserReaction, 0, len(userReactions))
+	for _, userReaction := range userReactions {
+		userReactionsDomain = append(userReactionsDomain, &domain.UserReaction{
+			PostID:     userReaction.PostID,
+			ReactionID: userReaction.ReactionID,
+			CreatedAt:  userReaction.CreatedAt,
+		})
+	}
+
+	return userReactionsDomain, nil
+}
