@@ -1,8 +1,3 @@
-<script setup lang="ts">
-import Avatar from './Avatar.vue'
-import { ref } from 'vue'
-</script>
-
 <template>
     <div class="icon-area" >
         <input class="radio-button" id="radio0" type="radio" name="icons" value="iine">
