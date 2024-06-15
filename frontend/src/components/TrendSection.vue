@@ -29,14 +29,16 @@
     background-color: white;
     padding: 10px 0;
     position: relative;
+    border-bottom: 1px solid lightgray;
     }
     .radio-button:checked + label::after{
     content: '';
     display: block;
     position: absolute;
     bottom: 0;
-    left: 0;
-    width: 100%;
+    left: 50%;
+    width: 80%;
+    transform: translateX(-50%);
     height: 6px;
     background-color: orange;
     border-radius: 6px;
