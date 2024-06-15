@@ -1,0 +1,17 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  up:
+    cmds:
+      - docker compose up -d --build
+    silent: true
+
+  down:
+    cmds:
+      - docker compose down
+    silent: true
