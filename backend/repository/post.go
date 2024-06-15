@@ -108,3 +108,24 @@ func (pr *PostRepository) GetLatestPosts(ctx context.Context, limit int) ([]*dom
 
 	return domainPosts, nil
 }
+
+func (pr *PostRepository) GetPost(ctx context.Context, postID uuid.UUID) (*domain.Post, error) {
+	var p post
+	err := pr.db.Get(&p, "SELECT * FROM posts WHERE id = ?", postID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("post not found: %w", err)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get post: %w", err)
+	}
+
+	return &domain.Post{
+		ID:               p.ID,
+		UserName:         p.UserName,
+		OriginalMessage:  p.OriginalMessage,
+		ConvertedMessage: p.ConvertedMessage,
+		ParentID:         p.ParentID,
+		RootID:           p.RootID,
+		CreatedAt:        p.CreatedAt,
+	}, nil
+}
