@@ -3,6 +3,7 @@ import Avatar from "@/components/Avatar.vue";
 import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
 import {ref} from "vue";
+import {reactionIcons} from "@/features/reactions";
 
 const props = defineProps<{
   name: string,
@@ -34,12 +35,12 @@ const dateText = ref(getDateText());
       </div>
       <div class="post-reactions">
         <div
-            v-for="(reaction, index) in ['❤️', '🔥', '💧', '😢', '🤔']"
-            :key="index"
+            v-for="reaction in reactions"
+            :key="reaction.id"
             class="post-reaction"
-            :class="reactions[index].clicked ? ['clicked'] : undefined">
-          <span class="post-reaction-icon">{{ reaction }}</span>
-          <span class="post-reaction-count">{{ reactions[index].count }}</span>
+            :class="reaction.clicked ? ['clicked'] : undefined">
+          <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
+          <span class="post-reaction-count">{{ reaction.count }}</span>
         </div>
       </div>
     </div>
