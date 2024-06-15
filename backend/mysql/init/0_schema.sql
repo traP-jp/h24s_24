@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS posts (
   id VARCHAR(36) NOT NULL PRIMARY KEY,
   original_message TEXT NOT NULL,
   converted_message TEXT NOT NULL,
+  user_name VARCHAR(32) NOT NULL,
   parent_id VARCHAR(36),
   root_id VARCHAR(36),
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
