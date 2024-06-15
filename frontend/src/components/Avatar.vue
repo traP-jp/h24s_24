@@ -1,13 +1,13 @@
 <script setup lang="ts">
 defineProps<{
-  name: string,
-  size: string
-}>()
-const endpoint = "https://q.trap.jp/api/v3"
+  name: string;
+  size: string;
+}>();
+const endpoint = 'https://q.trap.jp/api/v3';
 </script>
 
 <template>
-<img class="avatar" :src="`${endpoint}/public/icon/${name}`" />
+  <img class="avatar" :src="`${endpoint}/public/icon/${name}`" />
 </template>
 
 <style scoped>

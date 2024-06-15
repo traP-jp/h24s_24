@@ -1,29 +1,28 @@
 <script setup lang="ts">
-import Avatar from "@/components/Avatar.vue";
+import Avatar from '@/components/Avatar.vue';
 import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
-import {ref} from "vue";
-import {reactionIcons} from "@/features/reactions";
+import { ref } from 'vue';
+import { reactionIcons } from '@/features/reactions';
 
 const props = defineProps<{
-  name: string,
-  date: Date,
-  content: string,
-  reactions: { id: number, count: number, clicked: boolean }[],
-}>()
+  name: string;
+  date: Date;
+  content: string;
+  reactions: { id: number; count: number; clicked: boolean }[];
+}>();
 
 function getDateText() {
   return moment(props.date).fromNow();
 }
 
 const dateText = ref(getDateText());
-
 </script>
 
 <template>
   <div class="post">
     <div class="post-author-icon">
-      <Avatar size="48px" :name="name"/>
+      <Avatar size="48px" :name="name" />
     </div>
     <div class="post-content">
       <div class="post-header">
@@ -35,10 +34,11 @@ const dateText = ref(getDateText());
       </div>
       <div class="post-reactions">
         <div
-            v-for="reaction in reactions"
-            :key="reaction.id"
-            class="post-reaction"
-            :class="reaction.clicked ? ['clicked'] : undefined">
+          v-for="reaction in reactions"
+          :key="reaction.id"
+          class="post-reaction"
+          :class="reaction.clicked ? ['clicked'] : undefined"
+        >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </div>
