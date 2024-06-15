@@ -82,3 +82,62 @@ func (rr *ReactionRepository) PostReaction(ctx context.Context, postID uuid.UUID
 
 	return nil
 }
+
+func (rr *ReactionRepository) GetReactionsByPostIDs(ctx context.Context, postIDs []uuid.UUID) (map[uuid.UUID][]*domain.Reaction, error) {
+	if len(postIDs) == 0 {
+		return nil, nil
+	}
+
+	query, args, err := sqlx.In(
+		"SELECT post_id, reaction_id, COUNT(*) as count FROM posts_reactions WHERE post_id IN (?) GROUP BY post_id, reaction_id",
+		postIDs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	rows, err := rr.DB.Queryx(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reactions by post ids: %w", err)
+	}
+	defer rows.Close()
+
+	reactionsMap := make(map[uuid.UUID][]*domain.Reaction, len(postIDs))
+	for rows.Next() {
+		var postID uuid.UUID
+		var reactionID int
+		var count int
+		if err := rows.Scan(&postID, &reactionID, &count); err != nil {
+			return nil, fmt.Errorf("failed to scan: %w", err)
+		}
+
+		if _, ok := reactionsMap[postID]; !ok {
+			reactionsMap[postID] = make([]*domain.Reaction, 0, 10)
+		}
+		reactionsMap[postID] = append(reactionsMap[postID], &domain.Reaction{
+			PostID:     postID,
+			ReactionID: reactionID,
+			Count:      count,
+		})
+	}
+
+	return reactionsMap, nil
+}
+
+func (rr *ReactionRepository) GetReactionsByUserName(ctx context.Context, postID uuid.UUID, userName string) ([]*domain.UserReaction, error) {
+	var userReactions []Reaction
+	err := rr.DB.Select(&userReactions, "SELECT * FROM posts_reactions WHERE post_id = ? AND user_name = ?", postID, userName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reactions by user name: %w", err)
+	}
+
+	userReactionsDomain := make([]*domain.UserReaction, 0, len(userReactions))
+	for _, userReaction := range userReactions {
+		userReactionsDomain = append(userReactionsDomain, &domain.UserReaction{
+			PostID:     userReaction.PostID,
+			ReactionID: userReaction.ReactionID,
+			CreatedAt:  userReaction.CreatedAt,
+		})
+	}
+
+	return userReactionsDomain, nil
+}
