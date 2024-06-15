@@ -20,7 +20,7 @@ const buttonVisible = computed(() => {return (inputContent.value.length == 0) ||
       <input type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent"> 
       <p v-if="!buttonVisible">文字数の上限は280文字です</p>
       <div class="post-button">
-        <Button :enabled="buttonVisible">投稿する</Button>
+        <Button :disabled="!buttonVisible">投稿する</Button>
       </div>
     </div>
   </div>

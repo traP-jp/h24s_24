@@ -1,11 +1,11 @@
 <script setup lang="ts">
 defineProps<{
-  enabled: boolean
+  disabled: boolean
 }>()
 </script>
 
 <template>
-    <button type="button" :class="enabled ? 'enabled' : undefined"><slot></slot></button>
+    <button type="button" :class="disabled ? 'disabled' : undefined"><slot></slot></button>
 </template>
 
 <style lang="scss" scoped>
@@ -18,8 +18,9 @@ button {
   font-weight: bold;
   text-align: center;
   cursor: pointer;
-  &.enabled {
-    background-color: var(--accent-color);
+  background-color: var(--accent-color);
+  &.disabled {
+    background-color: var(--dimmed-border-color);
   }
 }
 </style>
