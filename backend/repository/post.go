@@ -129,3 +129,26 @@ func (pr *PostRepository) GetPost(ctx context.Context, postID uuid.UUID) (*domai
 		CreatedAt:        p.CreatedAt,
 	}, nil
 }
+
+func (pr *PostRepository) GetChildren(ctx context.Context, parentID uuid.UUID) ([]*domain.Post, error) {
+	var posts []post
+	err := pr.db.Select(&posts, "SELECT * FROM posts WHERE parent_id = ? ORDER BY created_at", parentID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get children: %w", err)
+	}
+
+	var domainPosts []*domain.Post
+	for _, p := range posts {
+		domainPosts = append(domainPosts, &domain.Post{
+			ID:               p.ID,
+			UserName:         p.UserName,
+			OriginalMessage:  p.OriginalMessage,
+			ConvertedMessage: p.ConvertedMessage,
+			ParentID:         p.ParentID,
+			RootID:           p.RootID,
+			CreatedAt:        p.CreatedAt,
+		})
+	}
+
+	return domainPosts, nil
+}
