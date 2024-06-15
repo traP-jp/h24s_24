@@ -1,6 +1,9 @@
 name: Lint Frontend
 
-on: push
+on:
+  push:
+    paths:
+      - 'frontend/**'
 
 jobs:
   lint:
