@@ -28,12 +28,15 @@ func Start() {
 	}
 
 	ph := &PostHandler{PostRepository: pr, ReactionRepository: rr}
+	rh := &ReactionHandler{rr: rr}
 
 	e.GET("/health", func(c echo.Context) error { return c.String(200, "OK") })
 
 	api := e.Group("/api")
 	api.POST("/posts", ph.PostPostsHandler)
 	api.GET("/posts", ph.GetPostsHandler)
+
+	api.POST("/posts/:postID/reactions/:reactionID", rh.PostReactionHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
