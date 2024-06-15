@@ -3,8 +3,6 @@ package handler
 import (
 	"errors"
 	"log"
-	"os"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -36,6 +34,7 @@ func Start() {
 	e.GET("/health", func(c echo.Context) error { return c.String(200, "OK") })
 
 	api := e.Group("/api")
+	api.Use(userNameMiddleware)
 	api.POST("/posts", ph.PostPostsHandler)
 	api.GET("/posts", ph.GetPostsHandler)
 	api.GET("/posts/:postID", ph.GetPostHandler)
@@ -47,15 +46,11 @@ func Start() {
 
 var errNoUsername = errors.New("no username")
 
-func getUsername(c echo.Context) (string, error) {
-	username := c.Request().Header.Get("X-Forwarded-User")
-	if username != "" {
-		return username, nil
-	}
-
-	local, err := strconv.ParseBool(os.Getenv("LOCAL"))
-	if err != nil || !local {
+func getUserName(c echo.Context) (string, error) {
+	userName, ok := c.Get(userNameCtxKey).(string)
+	if !ok {
 		return "", errNoUsername
 	}
-	return "testuser", nil
+	// username, _ := c.Get(userNameCtxKey).(string) // string以外になることは無い
+	return userName, nil
 }
