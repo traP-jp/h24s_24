@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -75,7 +76,7 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 	if post.Message == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "message empty")
 	}
-	if len(post.Message) > 280 {
+	if utf8.RuneCountInString(post.Message) > 280 {
 		return echo.NewHTTPError(http.StatusBadRequest, "message too long")
 	}
 
