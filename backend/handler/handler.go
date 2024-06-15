@@ -38,6 +38,7 @@ func Start() {
 	api := e.Group("/api")
 	api.POST("/posts", ph.PostPostsHandler)
 	api.GET("/posts", ph.GetPostsHandler)
+	api.GET("/posts/:postID", ph.GetPostHandler)
 
 	api.POST("/posts/:postID/reactions/:reactionID", rh.PostReactionHandler)
 
