@@ -2,7 +2,6 @@ package repository
 
 import (
 	"cmp"
-	"log"
 	"os"
 	"time"
 
@@ -23,7 +22,7 @@ func NewDB() (*sqlx.DB, error) {
 		ParseTime:            true,
 		Collation:            "utf8mb4_general_ci",
 	}
-	log.Println(mysqlConf.FormatDSN())
+
 	db, err := sqlx.Connect("mysql", mysqlConf.FormatDSN())
 	if err != nil {
 		return nil, err

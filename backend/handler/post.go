@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,7 +16,8 @@ import (
 
 type PostRepository interface {
 	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, parentID uuid.UUID, rootID uuid.UUID) error
-	GetPosts(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error)
+	GetPostsAfter(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error)
+	GetLatestPosts(ctx context.Context, limit int) ([]*domain.Post, error)
 }
 
 type PostHandler struct {
@@ -35,7 +38,7 @@ type GetPostsResponse struct {
 	UserName         string          `json:"userName"`
 	OriginalMessage  string          `json:"originalMessage"`
 	ConvertedMessage string          `json:"convertedMessage"`
-	RootID           uuid.UUID       `json:"rootID,omitempty"`
+	RootID           uuid.UUID       `json:"rootID"`
 	Reactions        []reactionCount `json:"reactions"`
 	CreatedAt        time.Time       `json:"createdAt"`
 }
@@ -58,10 +61,15 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotImplemented, "repost is not implemented")
 	}
 
+	useAfter := false
 	afterStr := c.QueryParam("after")
-	after, err := uuid.Parse(afterStr)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, "invalid param 'after'")
+	var after uuid.UUID
+	if afterStr != "" {
+		useAfter = true
+		after, err = uuid.Parse(afterStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, "invalid param 'after'")
+		}
 	}
 
 	var limit int
@@ -75,10 +83,22 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 		limit = 30
 	}
 
-	posts, err := ph.PostRepository.GetPosts(ctx, after, limit)
-	if err != nil {
-		log.Printf("failed to get posts: %v\n", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get posts")
+	var posts []*domain.Post
+	if useAfter {
+		posts, err = ph.PostRepository.GetPostsAfter(ctx, after, limit)
+		if errors.Is(err, sql.ErrNoRows) {
+			return c.JSON(http.StatusNotFound, "after post not found")
+		}
+		if err != nil {
+			log.Printf("failed to get posts: %v\n", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get posts")
+		}
+	} else {
+		posts, err = ph.PostRepository.GetLatestPosts(ctx, limit)
+		if err != nil {
+			log.Printf("failed to get posts: %v\n", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get posts")
+		}
 	}
 
 	postReactionsMap := make(map[uuid.UUID][]*domain.Reaction)
