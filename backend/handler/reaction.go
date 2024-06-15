@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -15,6 +16,7 @@ import (
 
 type ReactionRepository interface {
 	GetReactionsByPostID(ctx context.Context, postID uuid.UUID) ([]*domain.Reaction, error)
+	GetReactionsCount(ctx context.Context, since time.Time, timeSpan time.Duration, reactionLimit int) (map[uuid.UUID]int, error)
 	PostReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error
 }
 

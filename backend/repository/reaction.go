@@ -54,6 +54,26 @@ func (rr *ReactionRepository) GetReactionsByPostID(ctx context.Context, postID u
 	return reactions, nil
 }
 
+type reactionSlim struct {
+	PostID     uuid.UUID `db:"post_id"`
+	ReactionID int       `db:"reaction_id"`
+}
+
+func (rr *ReactionRepository) GetReactionsCount(ctx context.Context, since time.Time, timeSpan time.Duration, reactionLimit int) (map[uuid.UUID]int, error) {
+	var reactions []reactionSlim
+	err := rr.DB.Select(&reactions, "SELECT post_id, reaction_id FROM posts_reactions WHERE created_at BETWEEN ? and ? ORDER BY created_at DESC LIMIT ?", since, since.Add(timeSpan), reactionLimit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reactions: %w", err)
+	}
+
+	scores := make(map[uuid.UUID]int)
+	for _, r := range reactions {
+		scores[r.PostID]++
+	}
+
+	return scores, nil
+}
+
 func (rr *ReactionRepository) PostReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error {
 	_, err := rr.DB.Exec("INSERT INTO posts_reactions (post_id, reaction_id, user_name) VALUES (?, ?, ?)", postID, reactionID, userName)
 	if err != nil {
