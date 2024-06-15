@@ -40,7 +40,10 @@ func (rh *ReactionHandler) PostReactionHandler(c echo.Context) error {
 		return c.JSON(400, "invalid reaction id")
 	}
 
-	userName := "ikura-hamu" //TODO: getUserNameが来たら実装
+	userName, err := getUsername(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, "failed to get username")
+	}
 
 	err = rh.rr.PostReaction(ctx, postID, reactionID, userName)
 	var me *mysql.MySQLError
