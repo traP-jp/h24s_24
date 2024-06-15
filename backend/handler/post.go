@@ -8,7 +8,7 @@ import (
 )
 
 type PostRepository interface {
-	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, parentID uuid.UUID, rootID uuid.UUID) error
+	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, parentID uuid.UUID) error
 }
 
 type PostHandler struct {
