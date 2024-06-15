@@ -8,7 +8,7 @@ const inputContext = ref('')
 let ButtonVisible = ref(true)
 
 function checkLength() {
-    if (inputContext.value.length > 10){
+    if (inputContext.value.length > 280){
         ButtonVisible.value = false
     } else {
         ButtonVisible.value = true
@@ -20,7 +20,7 @@ function checkLength() {
 <template>
     <div class="newPostSection">
         <div class="newPostInputSection">        
-            <Avatar name="" size="30px"></Avatar>
+            <Avatar name="" size="50px"></Avatar>
             <input  type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContext" @input="checkLength">
             <p v-if="!ButtonVisible">文字数の上限は280文字です</p>
         </div>
