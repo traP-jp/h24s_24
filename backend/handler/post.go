@@ -18,6 +18,7 @@ type PostRepository interface {
 	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, username string, parentID uuid.UUID) (uuid.UUID, error)
 	GetPostsAfter(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error)
 	GetLatestPosts(ctx context.Context, limit int) ([]*domain.Post, error)
+	GetPostByID(ctx context.Context, postID uuid.UUID) (*domain.Post, error)
 }
 
 type PostHandler struct {
