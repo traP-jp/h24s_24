@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import Avatar from "@/components/Avatar.vue";
+import Avatar from '@/components/Avatar.vue';
 import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
-import {ref} from "vue";
-import {reactionIcons} from "@/features/reactions";
+import { ref } from 'vue';
+import { reactionIcons } from '@/features/reactions';
+
+type Reaction = { id: number; count: number; clicked: boolean };
 
 const props = defineProps<{
-  name: string,
-  date: Date,
-  content: string,
-  reactions: { id: number, count: number, clicked: boolean }[],
-}>()
+  id: string;
+  name: string;
+  date: Date;
+  content: string;
+  reactions: Reaction[];
+}>();
+const emits = defineEmits<{
+  (e: 'setClicked', value: [number, boolean]): void;
+}>();
 
 function getDateText() {
   return moment(props.date).fromNow();
@@ -18,12 +24,26 @@ function getDateText() {
 
 const dateText = ref(getDateText());
 
+async function toggleReaction(reaction: Reaction) {
+  const endpoint = '/api';
+  if (reaction.clicked) {
+    await fetch(`${endpoint}/posts/${props.id}/reactions/${reaction.id}`, {
+      method: 'DELETE',
+    });
+    emits('setClicked', [reaction.id, false]);
+  } else {
+    await fetch(`${endpoint}/posts/${props.id}/reactions/${reaction.id}`, {
+      method: 'POST',
+    });
+    reaction.clicked = true;
+  }
+}
 </script>
 
 <template>
   <div class="post">
     <div class="post-author-icon">
-      <Avatar size="48px" :name="name"/>
+      <Avatar size="48px" :name="name" />
     </div>
     <div class="post-content">
       <div class="post-header">
@@ -35,10 +55,12 @@ const dateText = ref(getDateText());
       </div>
       <div class="post-reactions">
         <div
-            v-for="reaction in reactions"
-            :key="reaction.id"
-            class="post-reaction"
-            :class="reaction.clicked ? ['clicked'] : undefined">
+          v-for="reaction in reactions"
+          :key="reaction.id"
+          class="post-reaction"
+          :class="reaction.clicked ? ['clicked'] : undefined"
+          @click="() => toggleReaction(reaction)"
+        >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </div>
