@@ -2,10 +2,11 @@
 
 import Button from "./Button.vue"
 import Avatar from "./Avatar.vue"
-import { ref, computed } from "vue"
+import { ref } from "vue"
 
 const inputContext = ref('')
 const ButtonVisible = ref(false)
+
 
 
 </script>
@@ -17,9 +18,7 @@ const ButtonVisible = ref(false)
     </div>
     <div class="new-post-input-section">
       <input type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContext"
-             @input="ButtonVisible = computed(
-              () => {return (inputContext.length == 0) || (inputContext.length > 5) ? false : true 
-              })"> 
+             @input="ButtonVisible = (inputContext.length == 0) || (inputContext.length > 5) ? false : true "> 
       <p v-if="!ButtonVisible">文字数の上限は280文字です</p>
       <div class="post-button" align="right">
         <Button id="canPost" :enabled="ButtonVisible">投稿する</Button>
