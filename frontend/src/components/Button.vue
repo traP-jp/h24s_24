@@ -5,7 +5,7 @@ defineProps<{
 </script>
 
 <template>
-    <button type="button" :class="disabled ? 'disabled' : undefined"><slot></slot></button>
+    <button type="button" :disabled="disabled"><slot></slot></button>
 </template>
 
 <style lang="scss" scoped>
@@ -19,7 +19,7 @@ button {
   text-align: center;
   cursor: pointer;
   background-color: var(--accent-color);
-  &.disabled {
+  &:disabled {
     background-color: var(--dimmed-border-color);
   }
 }
