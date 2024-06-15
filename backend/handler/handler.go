@@ -30,6 +30,7 @@ func Start() {
 
 	ph := &PostHandler{PostRepository: pr, ReactionRepository: rr}
 	rh := &ReactionHandler{rr: rr}
+	th := &TrendHandler{rr: rr, pr: pr}
 
 	e.Use(middleware.Logger(), middleware.Recover())
 
@@ -40,6 +41,8 @@ func Start() {
 	api.GET("/posts", ph.GetPostsHandler)
 
 	api.POST("/posts/:postID/reactions/:reactionID", rh.PostReactionHandler)
+
+	api.GET("/trend", th.GetTrendHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
