@@ -16,8 +16,8 @@ import (
 
 type ReactionRepository interface {
 	GetReactionsByPostID(ctx context.Context, postID uuid.UUID) ([]*domain.Reaction, error)
-	GetReactionsCount(ctx context.Context, since time.Time, timeSpan time.Duration, reactionLimit int) (map[uuid.UUID]int, error)
 	GetReactionsByPostIDs(ctx context.Context, postIDs []uuid.UUID) (map[uuid.UUID][]*domain.Reaction, error)
+	GetReactionCountsGroupedByPostID(ctx context.Context, reactionID *int, since time.Time, until time.Time) ([]*domain.ReactionCount, error)
 	PostReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error
 	GetReactionsByUserName(ctx context.Context, postID uuid.UUID, userName string) ([]*domain.UserReaction, error)
 }

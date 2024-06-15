@@ -9,16 +9,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/traP-jp/h24s_24/domain"
 )
 
 type TrendHandler struct {
 	pr PostRepository
 	rr ReactionRepository
-}
-
-type postReactionsCount struct {
-	PostID uuid.UUID
-	Count  int
 }
 
 type reaction struct {
@@ -36,52 +32,50 @@ type getTrendResponse struct {
 }
 
 func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
-	since := time.Now()
-	timeSpan := 3600 * time.Second
-	reactionLimit := 250
+	until := time.Now()
+	since := until.Add(-time.Hour * 2)
 	postLimit := 30
 
 	ctx := c.Request().Context()
-	countsMap, err := tr.rr.GetReactionsCount(ctx, since, timeSpan, reactionLimit)
+
+	reactionID := (*int)(nil)
+
+	counts, err := tr.rr.GetReactionCountsGroupedByPostID(ctx, reactionID, since, until)
 	if err != nil {
-		log.Printf("failed to get scores: %v\n", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get scores")
+		log.Printf("failed to get reactions: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
 	}
-
-	sortedPostCounts := make([]*postReactionsCount, 0, len(countsMap))
-
-	for postID, reactionsCount := range countsMap {
-		sortedPostCounts = append(sortedPostCounts, &postReactionsCount{postID, reactionsCount})
-	}
-	slices.SortFunc(sortedPostCounts, func(a, b *postReactionsCount) int {
-		n := cmp.Compare(b.Count, a.Count)
+	slices.SortFunc(counts, func(a, b *domain.ReactionCount) int {
+		n := b.Count - a.Count
 		if n != 0 {
 			return n
 		}
 		return cmp.Compare(a.PostID.ID(), b.PostID.ID())
 	})
 
-	posts := make([]*getTrendResponse, min(postLimit, len(sortedPostCounts)))
-	for i, v := range sortedPostCounts {
-		post, err := tr.pr.GetPostByID(ctx, v.PostID)
+	postIDs := make([]uuid.UUID, len(counts))
+	for i, v := range counts {
+		postIDs[i] = v.PostID
+	}
+
+	reactionsMap, err := tr.rr.GetReactionsByPostIDs(ctx, postIDs)
+	if err != nil {
+		log.Printf("failed to get reactions: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
+	}
+
+	posts := make([]*getTrendResponse, min(postLimit, len(counts)))
+	for i, v := range counts {
+		post, err := tr.pr.GetPost(ctx, v.PostID)
 		if err != nil {
 			log.Printf("failed to get post: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get post")
 		}
 
-		reactions, err := tr.rr.GetReactionsByPostID(ctx, v.PostID)
-		if err != nil {
-			log.Printf("failed to get reactions: %v", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
-		}
-
-		reactionsMap := make(map[int]int)
-		for _, r := range reactions {
-			reactionsMap[r.ReactionID] += r.Count
-		}
-		reactionsSlice := make([]*reaction, 0, len(reactionsMap))
-		for reactionID, count := range reactionsMap {
-			reactionsSlice = append(reactionsSlice, &reaction{reactionID, count})
+		reactions := reactionsMap[v.PostID]
+		reactionsSlice := make([]*reaction, len(reactions))
+		for i, v := range reactions {
+			reactionsSlice[i] = &reaction{v.ReactionID, v.Count}
 		}
 
 		posts[i] = &getTrendResponse{

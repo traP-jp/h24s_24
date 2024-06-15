@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -54,24 +55,35 @@ func (rr *ReactionRepository) GetReactionsByPostID(ctx context.Context, postID u
 	return reactions, nil
 }
 
-type reactionSlim struct {
-	PostID     uuid.UUID `db:"post_id"`
-	ReactionID int       `db:"reaction_id"`
+type reactionCount struct {
+	PostID uuid.UUID `db:"post_id"`
+	Count  int       `db:"reaction_count"`
 }
 
-func (rr *ReactionRepository) GetReactionsCount(ctx context.Context, since time.Time, timeSpan time.Duration, reactionLimit int) (map[uuid.UUID]int, error) {
-	var reactions []reactionSlim
-	err := rr.DB.Select(&reactions, "SELECT post_id, reaction_id FROM posts_reactions WHERE created_at BETWEEN ? and ? ORDER BY created_at DESC LIMIT ?", since, since.Add(timeSpan), reactionLimit)
+func (rr *ReactionRepository) GetReactionCountsGroupedByPostID(ctx context.Context, reactionID *int, since time.Time, until time.Time) ([]*domain.ReactionCount, error) {
+	if !since.Before(until) {
+		return nil, errors.New("invalid arguments")
+	}
+
+	var (
+		counts []*reactionCount
+		err    error
+	)
+
+	if reactionID == nil {
+		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE created_at BETWEEN ? AND ? GROUP BY post_id", since, until)
+	} else {
+		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE reaction_id=? AND created_at BETWEEN ? AND ? GROUP BY post_id", *reactionID, since, until)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to get reactions: %w", err)
 	}
 
-	scores := make(map[uuid.UUID]int)
-	for _, r := range reactions {
-		scores[r.PostID]++
+	countsSlice := make([]*domain.ReactionCount, len(counts))
+	for i, v := range counts {
+		countsSlice[i] = &domain.ReactionCount{PostID: v.PostID, Count: v.Count}
 	}
-
-	return scores, nil
+	return countsSlice, nil
 }
 
 func (rr *ReactionRepository) PostReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error {
