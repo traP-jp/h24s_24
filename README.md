@@ -11,7 +11,20 @@ Alietty
 
 ### バックエンド
 
-TODO
+#### 動かすために最低限必要
+
+- Docker, Docker Compose
+
+#### 開発に必要
+
+- Go 1.22 以上
+- [Task](https://github.com/go-task/task)
+
+コマンドの使い方は`task --list`から確認。
+
+#### 説明
+
+8080ポートでサーバーアプリケーション、8081ポートでadminer、3306ポートでMySQLが立ち上がる。アプリは[Air](https://github.com/air-verse/air)を使ってホットリロードを設定しているので、Goのコードを変更しても`go run main.go`とかする必要は無く、ちょっと待つとすぐ変更が反映される。他をいじったら一旦`task down`したり `task clean` したり必要。
 
 ### フロントエンド
 
