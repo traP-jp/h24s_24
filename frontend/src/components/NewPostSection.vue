@@ -39,16 +39,18 @@ const canPost = computed(() => {
   display: flex;
 
   .new-post-input-section {
-    width: 100%;
+    width: calc(100% - 56px);
     margin-left: 8px;
 
     textarea {
       display: block;
       width: 100%;
+      max-width: 100%;
       border: none;
       padding-top: 16px;
       padding-bottom: 8px;
       resize: none;
+      field-sizing: content;
 
       &:focus-visible {
         outline: none;
