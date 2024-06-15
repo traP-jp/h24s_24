@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -39,26 +40,27 @@ func (rh *ReactionHandler) PostReactionHandler(c echo.Context) error {
 		return c.JSON(400, "invalid reaction id")
 	}
 
-	userName := "" //TODO: getUserNameが来たら実装
+	userName := "ikura-hamu" //TODO: getUserNameが来たら実装
 
 	err = rh.rr.PostReaction(ctx, postID, reactionID, userName)
-	if err != nil {
-		if mysqlErr, ok := err.(*mysql.MySQLError); ok {
-			if mysqlErr.Number == 1062 { // duplicate reaction
-				return c.JSON(http.StatusConflict, "already reacted")
-			}
-			if mysqlErr.Number == 1452 { // post not found
-				return c.JSON(http.StatusNotFound, "post not found")
-			}
+	var me *mysql.MySQLError
+	if errors.As(err, &me) {
+		if me.Number == 1062 { // duplicate reaction
+			return c.JSON(http.StatusConflict, "already reacted")
 		}
+		if me.Number == 1452 { // post not found
+			return c.JSON(http.StatusNotFound, "post not found")
+		}
+	}
+	if err != nil {
 		log.Println("failed to post reaction: ", err)
-		return c.JSON(500, "failed to post reaction")
+		return c.JSON(http.StatusInternalServerError, "failed to post reaction")
 	}
 
 	reactions, err := rh.rr.GetReactionsByPostID(ctx, postID)
 	if err != nil {
 		log.Println("failed to get reactions: ", err)
-		return c.JSON(500, "failed to get reactions")
+		return c.JSON(http.StatusInternalServerError, "failed to get reactions")
 	}
 
 	res := make([]PostReactionResponse, 0, len(reactions))
