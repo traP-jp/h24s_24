@@ -42,7 +42,7 @@ func (rh *ReactionHandler) PostReactionHandler(c echo.Context) error {
 		return c.JSON(400, "invalid reaction id")
 	}
 
-	userName, err := getUsername(c)
+	userName, err := getUserName(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "failed to get username")
 	}
