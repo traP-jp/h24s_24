@@ -176,3 +176,29 @@ func (pr *PostRepository) GetAncestors(ctx context.Context, postID uuid.UUID) ([
 
 	return domainPosts, nil
 }
+
+func (pr *PostRepository) GetChildrenCountByParentIDs(ctx context.Context, parentIDs []uuid.UUID) (map[uuid.UUID]int, error) {
+	query, args, err := sqlx.In("SELECT parent_id, COUNT(*) FROM posts WHERE parent_id IN (?) GROUP BY parent_id", parentIDs)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create query: %w", err)
+	}
+
+	rows, err := pr.db.Queryx(query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query: %w", err)
+	}
+	defer rows.Close()
+
+	counts := make(map[uuid.UUID]int, len(parentIDs))
+	for rows.Next() {
+		var parentID uuid.UUID
+		var count int
+		err := rows.Scan(&parentID, &count)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan: %w", err)
+		}
+		counts[parentID] = count
+	}
+
+	return counts, nil
+}
