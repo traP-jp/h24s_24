@@ -31,7 +31,7 @@ func NewPostRepository(db *sqlx.DB) *PostRepository {
 	return &PostRepository{db: db}
 }
 
-func (pr *PostRepository) CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, parentID uuid.UUID) error {
+func (pr *PostRepository) CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, username string, parentID uuid.UUID) error {
 	db := pr.db
 	var rootID uuid.UUID
 

@@ -16,7 +16,7 @@ import (
 )
 
 type PostRepository interface {
-	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, parentID uuid.UUID) error
+	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, username string, parentID uuid.UUID) error
 	GetPostsAfter(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error)
 	GetLatestPosts(ctx context.Context, limit int) ([]*domain.Post, error)
 }
@@ -51,8 +51,11 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 		}
 	}
 
+	var username string
+	username, err = getUsername(c)
+
 	convertedMessage := post.Message
-	return ph.PostRepository.CreatePost(ctx, postID, post.Message, convertedMessage, parentID)
+	return ph.PostRepository.CreatePost(ctx, postID, post.Message, convertedMessage, username, parentID)
 }
 
 type GetPostsResponse struct {
