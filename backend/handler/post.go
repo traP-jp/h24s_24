@@ -105,7 +105,7 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 		reactions := make([]reactionCount, 0, len(postReactionsMap[post.ID]))
 		for _, reaction := range postReactionsMap[post.ID] {
 			r := reactionCount{
-				ID:    reaction.PostID,
+				ID:    reaction.ReactionID,
 				Count: reaction.Count,
 			}
 			reactions = append(reactions, r)

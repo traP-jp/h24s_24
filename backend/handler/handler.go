@@ -19,7 +19,12 @@ func Start() {
 	if err != nil {
 		log.Fatalf("failed to get post repository: %v\n", err)
 	}
-	ph := &PostHandler{PostRepository: pr}
+	rr := repository.NewReactionRepository(db)
+	if err != nil {
+		log.Fatalf("failed to get reaction repository: %v\n", err)
+	}
+
+	ph := &PostHandler{PostRepository: pr, ReactionRepository: rr}
 
 	e.GET("/health", func(c echo.Context) error { return c.String(200, "OK") })
 	e.POST("/api/posts", ph.PostPostsHandler)

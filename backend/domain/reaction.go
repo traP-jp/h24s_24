@@ -1,7 +1,10 @@
 package domain
 
+import "github.com/google/uuid"
+
 type Reaction struct {
-	PostID int
-	Count  int
-	Users  []string
+	ReactionID int
+	PostID     uuid.UUID
+	Count      int
+	Users      []string
 }
