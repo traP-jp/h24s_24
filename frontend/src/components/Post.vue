@@ -8,55 +8,38 @@ const props = defineProps<{
   name: string,
   date: Date,
   content: string,
-  stamp_counts: number[],
-  stamp_clicked: boolean[]
+  reactions: { id: number, count: number, clicked: boolean }[],
 }>()
 
 function getDateText() {
   return moment(props.date).fromNow();
 }
 
-const date_text = ref(getDateText());
-
-setInterval(() => {
-  date_text.value = getDateText();
-}, 1000);
+const dateText = ref(getDateText());
 
 </script>
 
 <template>
   <div class="post">
     <div class="post-author-icon">
-      <Avatar size="50px" :name="name"/>
+      <Avatar size="48px" :name="name"/>
     </div>
     <div class="post-content">
       <div class="post-header">
         <span class="post-author">@{{ name }}</span>
-        <span class="post-date">{{date_text}}</span>
+        <span class="post-date">{{ dateText }}</span>
       </div>
       <div class="post-message">
         {{ content }}
       </div>
-      <div class="post-stamps">
-        <div class="post-stamp" :class="stamp_clicked[0] ? ['clicked'] : undefined">
-          <span class="post-stamp-icon">❤️</span>
-          <span class="post-stamp-count">{{ stamp_counts[0] }}</span>
-        </div>
-        <div class="post-stamp" :class="stamp_clicked[1] ? ['clicked'] : undefined">
-          <span class="post-stamp-icon">🔥</span>
-          <span class="post-stamp-count">{{ stamp_counts[1] }}</span>
-        </div>
-        <div class="post-stamp" :class="stamp_clicked[2] ? ['clicked'] : undefined">
-          <span class="post-stamp-icon">💧</span>
-          <span class="post-stamp-count">{{ stamp_counts[2] }}</span>
-        </div>
-        <div class="post-stamp" :class="stamp_clicked[3] ? ['clicked'] : undefined">
-          <span class="post-stamp-icon">😢</span>
-          <span class="post-stamp-count">{{ stamp_counts[3] }}</span>
-        </div>
-        <div class="post-stamp" :class="stamp_clicked[4] ? ['clicked'] : undefined">
-          <span class="post-stamp-icon">🤔</span>
-          <span class="post-stamp-count">{{ stamp_counts[4] }}</span>
+      <div class="post-reactions">
+        <div
+            v-for="(reaction, index) in ['❤️', '🔥', '💧', '😢', '🤔']"
+            :key="index"
+            class="post-reaction"
+            :class="reactions[index].clicked ? ['clicked'] : undefined">
+          <span class="post-reaction-icon">{{ reaction }}</span>
+          <span class="post-reaction-count">{{ reactions[index].count }}</span>
         </div>
       </div>
     </div>
@@ -64,55 +47,57 @@ setInterval(() => {
 </template>
 
 <style lang="scss" scoped>
-$disabled: #ddd;
-$highlight: orange;
 .post {
   display: flex;
-  padding: 10px;
+  padding: 16px;
+  color: var(--primary-text-color);
 
   &-author-icon {
-    padding-right: 10px;
+    padding-right: 8px;
   }
 
   &-content {
-    width: 450px;
+    width: 480px;
 
     .post-header {
-      margin-bottom: 5px;
+      margin-bottom: 8px;
 
       .post-author {
-        margin-right: 5px;
+        margin-right: 6px;
         font-weight: bold;
       }
 
       .post-date {
-        color: gray; // TODO
+        color: var(--dimmed-text-color); // TODO
       }
     }
 
     .post-message {
       max-width: 100%;
       overflow-wrap: break-word;
+      margin-bottom: 8px;
     }
 
-    .post-stamps {
+    .post-reactions {
       display: flex;
-      margin-top: 5px;
 
-      .post-stamp {
-        padding: 0 5px;
+      .post-reaction {
+        margin-right: 8px;
+        opacity: 40%;
 
-        .post-stamp-icon {
-          padding-right: 5px;
+        .post-reaction-icon {
+          padding: 4px;
         }
 
-        .post-stamp-count {
-          color: $disabled;
+        .post-reaction-count {
+          color: var(--dimmed-text-color);
         }
 
         &.clicked {
-          .post-stamp-count {
-            color: $highlight;
+          opacity: 100%;
+
+          .post-reaction-count {
+            color: var(--accent-color);
             font-weight: bold;
           }
         }
