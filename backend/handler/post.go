@@ -18,6 +18,8 @@ type PostRepository interface {
 	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, username string, parentID uuid.UUID) (uuid.UUID, error)
 	GetPostsAfter(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error)
 	GetLatestPosts(ctx context.Context, limit int) ([]*domain.Post, error)
+	GetPost(ctx context.Context, postID uuid.UUID) (*domain.Post, error)
+	GetChildren(ctx context.Context, parentID uuid.UUID) ([]uuid.UUID, error)
 }
 
 type PostHandler struct {
@@ -184,6 +186,83 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 		}
 		r.Reactions = reactions
 		res = append(res, r)
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+type getPostResponse struct {
+	ID               uuid.UUID   `json:"id"`
+	UserName         string      `json:"userName"`
+	OriginalMessage  string      `json:"originalMessage"`
+	ConvertedMessage string      `json:"convertedMessage"`
+	RootID           uuid.UUID   `json:"rootID"`
+	ParentID         uuid.UUID   `json:"parentID"`
+	Reactions        []reaction  `json:"reactions"`
+	Children         []uuid.UUID `json:"children,omitempty"`
+	CreatedAt        time.Time   `json:"createdAt"`
+}
+
+type reaction struct {
+	ID    int      `json:"id"`
+	Count int      `json:"count"`
+	Users []string `json:"users"`
+}
+
+func (ph *PostHandler) GetPostHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	postID, err := uuid.Parse(c.Param("postID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "invalid post id")
+	}
+
+	post, err := ph.PostRepository.GetPost(ctx, postID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return c.JSON(http.StatusNotFound, "post not found")
+	}
+	if err != nil {
+		log.Printf("failed to get post: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get post")
+	}
+
+	reactions, err := ph.ReactionRepository.GetReactionsByPostID(ctx, post.ID)
+	if err != nil {
+		log.Printf("failed to get reactions: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
+	}
+
+	resReactions := make([]reaction, 0, len(reactions))
+	for _, re := range reactions {
+		resReactions = append(resReactions, reaction{
+			ID:    re.ReactionID,
+			Count: re.Count,
+			Users: re.Users,
+		})
+	}
+
+	res := getPostResponse{
+		ID:               post.ID,
+		UserName:         post.UserName,
+		OriginalMessage:  post.OriginalMessage,
+		ConvertedMessage: post.ConvertedMessage,
+		RootID:           post.RootID,
+		ParentID:         post.ParentID,
+		Reactions:        resReactions,
+		CreatedAt:        post.CreatedAt,
+	}
+
+	useChildren, err := strconv.ParseBool(c.QueryParam("children"))
+	if err != nil {
+		useChildren = false
+	}
+	if useChildren {
+		children, err := ph.PostRepository.GetChildren(ctx, post.ID)
+		if err != nil {
+			log.Printf("failed to get children: %v\n", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get children")
+		}
+		res.Children = children
 	}
 
 	return c.JSON(http.StatusOK, res)
