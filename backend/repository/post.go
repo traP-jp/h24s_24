@@ -17,7 +17,7 @@ type PostRepository struct {
 }
 
 type post struct {
-	PostID           uuid.UUID `db:"post_id"`
+	ID               uuid.UUID `db:"id"`
 	UserName         string    `db:"user_name"`
 	OriginalMessage  string    `db:"original_message"`
 	ConvertedMessage string    `db:"converted_message"`
@@ -37,7 +37,7 @@ func (pr *PostRepository) CreatePost(ctx context.Context, postID uuid.UUID, orig
 
 func (pr *PostRepository) GetPosts(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error) {
 	var afterPost post
-	err := pr.db.Get(&afterPost, "SELECT * FROM posts WHERE post_id = ?", after)
+	err := pr.db.Get(&afterPost, "SELECT * FROM posts WHERE id = ?", after)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("post not found: %w", err)
 	}
@@ -54,7 +54,7 @@ func (pr *PostRepository) GetPosts(ctx context.Context, after uuid.UUID, limit i
 	var domainPosts []*domain.Post
 	for _, p := range posts {
 		domainPosts = append(domainPosts, &domain.Post{
-			ID:               p.PostID,
+			ID:               p.ID,
 			UserName:         p.UserName,
 			OriginalMessage:  p.OriginalMessage,
 			ConvertedMessage: p.ConvertedMessage,

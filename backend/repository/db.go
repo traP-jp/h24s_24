@@ -2,6 +2,7 @@ package repository
 
 import (
 	"cmp"
+	"log"
 	"os"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 func NewDB() (*sqlx.DB, error) {
 	jst, _ := time.LoadLocation("Asia/Tokyo")
 	mysqlConf := mysql.Config{
+		Net:                  "tcp",
 		User:                 cmp.Or(os.Getenv("DB_USER"), "root"),
 		Passwd:               cmp.Or(os.Getenv("DB_PASSWORD"), "passsword"),
 		Addr:                 cmp.Or(os.Getenv("DB_HOST"), "db") + ":" + cmp.Or(os.Getenv("DB_PORT"), "3306"),
@@ -21,6 +23,7 @@ func NewDB() (*sqlx.DB, error) {
 		ParseTime:            true,
 		Collation:            "utf8mb4_general_ci",
 	}
+	log.Println(mysqlConf.FormatDSN())
 	db, err := sqlx.Connect("mysql", mysqlConf.FormatDSN())
 	if err != nil {
 		return nil, err
