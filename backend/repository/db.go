@@ -29,7 +29,7 @@ func NewDB() (*sqlx.DB, error) {
 	)
 
 	err = nil
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		if err != nil && i > 0 {
 			time.Sleep((time.Duration)(i) * time.Second)
 		}
