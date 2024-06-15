@@ -154,9 +154,15 @@ func (pr *PostRepository) GetChildren(ctx context.Context, parentID uuid.UUID) (
 }
 
 func (pr *PostRepository) GetAncestors(ctx context.Context, postID uuid.UUID) ([]*domain.Post, error) {
+	var p post
+	err := pr.db.Get(&p, "SELECT * FROM posts WHERE id = ?", postID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("post not found: %w", err)
+	}
+
 	var posts []post
-	err := pr.db.Select(&posts,
-		"SELECT * FROM posts WHERE root_id = (SELECT root_id FROM posts WHERE id = ?) ORDER BY created_at ASC", postID)
+	err = pr.db.Select(&posts,
+		"SELECT * FROM posts WHERE root_id = ? AND created_at < ? ORDER BY created_at ASC", p.RootID, p.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get ancestors: %w", err)
 	}
