@@ -3,7 +3,7 @@ import Button from "./Button.vue"
 import Avatar from "./Avatar.vue"
 import {ref, computed} from "vue"
 
-const props = defineProps<{
+defineProps<{
   name: string,
 }>()
 
@@ -20,8 +20,9 @@ const canPost = computed(() => {
       <Avatar :name="name" size="48px"></Avatar>
     </div>
     <div class="new-post-input-section">
-      <input type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent">
+      <textarea type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent" />
       <div class="post-footer">
+        <span v-if="canPost">{{inputContent.length}}/280文字</span>
         <span v-if="!canPost">文字数の上限は280文字です</span>
         <span class="post-button">
           <Button :disabled="!canPost">投稿する</Button>
@@ -41,12 +42,13 @@ const canPost = computed(() => {
     width: 100%;
     margin-left: 8px;
 
-    input {
+    textarea {
       display: block;
       width: 100%;
       border: none;
       padding-top: 16px;
       padding-bottom: 8px;
+      resize: none;
 
       &:focus-visible {
         outline: none;
