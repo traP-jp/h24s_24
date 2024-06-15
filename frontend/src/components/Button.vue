@@ -1,11 +1,11 @@
 <script setup lang="ts">
 defineProps<{
-  disabled: boolean
-}>()
+  disabled: boolean;
+}>();
 </script>
 
 <template>
-    <button type="button" :disabled="disabled"><slot /></button>
+  <button type="button" :disabled="disabled"><slot /></button>
 </template>
 
 <style lang="scss" scoped>
