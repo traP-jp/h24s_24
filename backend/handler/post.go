@@ -42,7 +42,7 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 
 	postID := uuid.New()
 	var parentID uuid.UUID
-	if len(post.ParentId) == 0 {
+	if post.ParentId == "" {
 		parentID = postID
 	} else {
 		parentID, err = uuid.Parse(post.ParentId)

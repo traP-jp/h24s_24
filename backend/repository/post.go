@@ -38,9 +38,7 @@ func (pr *PostRepository) CreatePost(ctx context.Context, postID uuid.UUID, orig
 	if postID == parentID { // リプライじゃない
 		rootID = postID
 	} else {
-		rootId := &uuid.UUID{}
-		err := db.Get(&rootId, "SELECT root_id FROM posts WHERE id=?", parentID)
-
+		err := db.Get(&rootID, "SELECT root_id FROM posts WHERE id=?", parentID)
 		if errors.Is(err, sql.ErrNoRows) {
 			return fmt.Errorf("not found: %w", err)
 		}
@@ -49,7 +47,7 @@ func (pr *PostRepository) CreatePost(ctx context.Context, postID uuid.UUID, orig
 		}
 	}
 
-	_, err := db.Exec("INSERT INTO posts (id, original_message, converted_message, parent_id, root_id)", postID, originalMessage, convertedMessage, parentID, rootID)
+	_, err := db.Exec("INSERT INTO posts (id, original_message, converted_message, user_name, parent_id, root_id) VALUES (?, ?, ?, ?, ?, ?)", postID, originalMessage, convertedMessage, username, parentID, rootID)
 	if err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
 	}
