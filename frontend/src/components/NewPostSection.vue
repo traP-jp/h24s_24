@@ -2,10 +2,10 @@
 
 import Button from "./Button.vue"
 import Avatar from "./Avatar.vue"
-import { ref } from "vue"
+import { ref,computed } from "vue"
 
-const inputContext = ref('')
-const ButtonVisible = ref(false)
+const inputContent = ref('')
+const buttonVisible = computed(() => {return (inputContent.value.length == 0) || (inputContent.value.length > 280) ? false : true})
 
 
 
@@ -17,11 +17,10 @@ const ButtonVisible = ref(false)
       <Avatar name="" size="48px"></Avatar>
     </div>
     <div class="new-post-input-section">
-      <input type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContext"
-             @input="ButtonVisible = (inputContext.length == 0) || (inputContext.length > 280) ? false : true "> 
-      <p v-if="!ButtonVisible">文字数の上限は280文字です</p>
-      <div class="post-button" align="right">
-        <Button id="canPost" :enabled="ButtonVisible">投稿する</Button>
+      <input type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent"> 
+      <p v-if="!buttonVisible">文字数の上限は280文字です</p>
+      <div class="post-button">
+        <Button :enabled="buttonVisible">投稿する</Button>
       </div>
     </div>
   </div>
@@ -29,7 +28,7 @@ const ButtonVisible = ref(false)
 
 <style lang="scss" scoped>
 .new-post-section {
-  width: 480px;
+  width: 100%;
   padding: 16px;
   display: flex;
 
@@ -50,6 +49,7 @@ const ButtonVisible = ref(false)
     }
     .post-button {
       margin: 8px;
+      text-align: right
     }
   }
 }
