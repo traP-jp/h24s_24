@@ -1,13 +1,12 @@
 <script setup lang="ts">
-
 import Button from "./Button.vue"
 import Avatar from "./Avatar.vue"
-import { ref,computed } from "vue"
+import {ref, computed} from "vue"
 
 const inputContent = ref('')
-const buttonVisible = computed(() => {return (inputContent.value.length == 0) || (inputContent.value.length > 280) ? false : true})
-
-
+const canPost = computed(() => {
+  return (inputContent.value.length != 0) && (inputContent.value.length <= 280)
+})
 
 </script>
 
@@ -17,10 +16,10 @@ const buttonVisible = computed(() => {return (inputContent.value.length == 0) ||
       <Avatar name="" size="48px"></Avatar>
     </div>
     <div class="new-post-input-section">
-      <input type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent"> 
-      <p v-if="!buttonVisible">文字数の上限は280文字です</p>
+      <input type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent">
+      <p v-if="!canPost">文字数の上限は280文字です</p>
       <div class="post-button">
-        <Button :disabled="!buttonVisible">投稿する</Button>
+        <Button :disabled="!canPost">投稿する</Button>
       </div>
     </div>
   </div>
@@ -47,6 +46,7 @@ const buttonVisible = computed(() => {return (inputContent.value.length == 0) ||
         outline: none;
       }
     }
+
     .post-button {
       margin: 8px;
       text-align: right
