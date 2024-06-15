@@ -15,7 +15,7 @@ import (
 )
 
 type PostRepository interface {
-	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, parentID uuid.UUID, rootID uuid.UUID) error
+	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, username string, parentID uuid.UUID) (uuid.UUID, error)
 	GetPostsAfter(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error)
 	GetLatestPosts(ctx context.Context, limit int) ([]*domain.Post, error)
 }
@@ -25,12 +25,64 @@ type PostHandler struct {
 	ReactionRepository ReactionRepository
 }
 
+type postPostsRequest struct {
+	Message  string    `json:"message"`
+	ParentID uuid.UUID `json:"parent_id"`
+}
+
+type postPostsResponse struct {
+	OriginalMessage  string    `json:"original_message"`
+	ConvertedMessage string    `json:"converted_message"`
+	PostID           uuid.UUID `json:"post_id"`
+	CreatedAt        time.Time `json:"created_at"`
+	ParentID         uuid.UUID `json:"parent_id"`
+	RootID           uuid.UUID `json:"root_id"`
+}
+
 func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
-	// ctx := c.Request().Context()
+	ctx := c.Request().Context()
 
-	// ph.PostRepository.CreatePost()
+	var post postPostsRequest
+	err := c.Bind(&post)
+	if err != nil {
+		log.Printf("failed to bind: %v\n", err)
+		return echo.NewHTTPError(http.StatusBadRequest, "failed to bind")
+	}
 
-	return nil
+	var username string
+	username, err = getUsername(c)
+	if err != nil {
+		log.Printf("failed to get username: %v\n", err)
+		return echo.NewHTTPError(http.StatusUnauthorized, "failed to get username")
+	}
+
+	postID := uuid.New()
+	parentID := post.ParentID
+	if parentID == uuid.Nil {
+		parentID = postID
+	}
+
+	convertedMessage := post.Message
+
+	var rootID uuid.UUID
+	rootID, err = ph.PostRepository.CreatePost(ctx, postID, post.Message, convertedMessage, username, parentID)
+
+	if err != nil {
+		log.Printf("failed to post: %v\n", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusBadRequest, "failed to post")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to post")
+	}
+
+	return c.JSON(http.StatusOK, postPostsResponse{
+		OriginalMessage:  post.Message,
+		ConvertedMessage: convertedMessage,
+		PostID:           postID,
+		CreatedAt:        time.Now(),
+		ParentID:         parentID,
+		RootID:           rootID,
+	})
 }
 
 type GetPostsResponse struct {

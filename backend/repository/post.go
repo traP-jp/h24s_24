@@ -31,8 +31,27 @@ func NewPostRepository(db *sqlx.DB) *PostRepository {
 	return &PostRepository{db: db}
 }
 
-func (pr *PostRepository) CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, parentID uuid.UUID, rootID uuid.UUID) error {
-	return nil
+func (pr *PostRepository) CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, username string, parentID uuid.UUID) (uuid.UUID, error) {
+	db := pr.db
+	var rootID uuid.UUID
+
+	if postID == parentID { // リプライじゃない
+		rootID = postID
+	} else {
+		err := db.Get(&rootID, "SELECT root_id FROM posts WHERE id=?", parentID)
+		if errors.Is(err, sql.ErrNoRows) {
+			return uuid.Nil, fmt.Errorf("not found: %w", err)
+		}
+		if err != nil {
+			return uuid.Nil, fmt.Errorf("failed to get %w", err)
+		}
+	}
+
+	_, err := db.Exec("INSERT INTO posts (id, original_message, converted_message, user_name, parent_id, root_id) VALUES (?, ?, ?, ?, ?, ?)", postID, originalMessage, convertedMessage, username, parentID, rootID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to insert: %w", err)
+	}
+	return rootID, nil
 }
 
 func (pr *PostRepository) GetPostsAfter(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error) {

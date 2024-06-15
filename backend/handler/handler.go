@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"errors"
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/traP-jp/h24s_24/repository"
@@ -27,10 +30,25 @@ func Start() {
 	ph := &PostHandler{PostRepository: pr, ReactionRepository: rr}
 
 	e.GET("/health", func(c echo.Context) error { return c.String(200, "OK") })
-	e.POST("/api/posts", ph.PostPostsHandler)
 
 	api := e.Group("/api")
+	api.POST("/posts", ph.PostPostsHandler)
 	api.GET("/posts", ph.GetPostsHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
+}
+
+var errNoUsername = errors.New("no username")
+
+func getUsername(c echo.Context) (string, error) {
+	username := c.Request().Header.Get("X-Forwarded-User")
+	if username != "" {
+		return username, nil
+	}
+
+	local, err := strconv.ParseBool(os.Getenv("LOCAL"))
+	if err != nil || !local {
+		return "", errNoUsername
+	}
+	return "testuser", nil
 }
