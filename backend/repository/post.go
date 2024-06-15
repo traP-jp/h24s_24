@@ -152,3 +152,27 @@ func (pr *PostRepository) GetChildren(ctx context.Context, parentID uuid.UUID) (
 
 	return domainPosts, nil
 }
+
+func (pr *PostRepository) GetAncestors(ctx context.Context, postID uuid.UUID) ([]*domain.Post, error) {
+	var posts []post
+	err := pr.db.Select(&posts,
+		"SELECT * FROM posts WHERE root_id = (SELECT root_id FROM posts WHERE id = ?) ORDER BY created_at ASC", postID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get ancestors: %w", err)
+	}
+
+	domainPosts := make([]*domain.Post, 0, len(posts))
+	for _, p := range posts {
+		domainPosts = append(domainPosts, &domain.Post{
+			ID:               p.ID,
+			UserName:         p.UserName,
+			OriginalMessage:  p.OriginalMessage,
+			ConvertedMessage: p.ConvertedMessage,
+			ParentID:         p.ParentID,
+			RootID:           p.RootID,
+			CreatedAt:        p.CreatedAt,
+		})
+	}
+
+	return domainPosts, nil
+}
