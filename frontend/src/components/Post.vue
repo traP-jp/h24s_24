@@ -2,10 +2,11 @@
 import Avatar from '@/components/Avatar.vue';
 import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
-import { effect, ref } from 'vue';
+import { computed, effect, ref } from 'vue';
 import { reactionIcons } from '@/features/reactions';
 import ConditionalLink from '@/components/ConditionalLink.vue';
 import { deleteReaction, postReaction } from '@/features/api';
+import { Icon } from '@iconify/vue';
 import twemoji from 'twemoji';
 
 type Reaction = { id: number; count: number; clicked: boolean };
@@ -51,6 +52,12 @@ async function toggleReaction(reaction: Reaction) {
   }
 }
 
+const shareText = computed(() =>
+  encodeURIComponent(
+    `:@${props.name}: < ${props.content}\n\n[:fire: 発火村の投稿より :fire:](https://hakka-mura.trap.show/posts/${props.id})`,
+  ),
+);
+
 const vTwemoji = {
   mounted: (el: HTMLElement) => {
     el.innerHTML = twemoji.parse(el.innerHTML, {
@@ -78,23 +85,34 @@ const vTwemoji = {
           <div v-if="!detail" class="original-message">{{ originalContent }}</div>
           <div v-if="detail" class="detail-original-message">{{ originalContent }}</div>
         </div>
-        <div class="post-reactions">
-          <button
-            v-for="reaction in copiedReactions"
-            :key="reaction.id"
-            class="post-reaction"
-            :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-            @click="
-              (e) => {
-                toggleReaction(reaction);
-                e.stopPropagation();
-                e.preventDefault();
-              }
-            "
-          >
-            <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
-            <span class="post-reaction-count">{{ reaction.count }}</span>
-          </button>
+        <div class="foot-action-container">
+          <div class="post-reactions">
+            <button
+              v-for="reaction in copiedReactions"
+              :key="reaction.id"
+              class="post-reaction"
+              :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
+              @click="
+                (e) => {
+                  toggleReaction(reaction);
+                  e.stopPropagation();
+                  e.preventDefault();
+                }
+              "
+            >
+              <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
+              <span class="post-reaction-count">{{ reaction.count }}</span>
+            </button>
+          </div>
+          <div class="share-traQ">
+            <a
+              :href="`https://q.trap.jp/share-target?text=${shareText}`"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <Icon icon="mdi:share-variant" />
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -141,7 +159,7 @@ const vTwemoji = {
       }
 
       .post-date {
-        color: var(--dimmed-text-color); // TODO
+        color: var(--dimmed-text-color);
       }
     }
 
@@ -181,6 +199,11 @@ const vTwemoji = {
     .detail-original-message {
       color: var(--dimmed-text-color);
       margin-bottom: 8px;
+    }
+
+    .foot-action-container {
+      display: flex;
+      justify-content: space-between;
     }
 
     .post-reactions {
@@ -237,6 +260,26 @@ const vTwemoji = {
             color: var(--accent-color);
             font-weight: bold;
           }
+        }
+      }
+    }
+
+    .share-traQ {
+      padding-right: 16px;
+
+      a {
+        display: inline-grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+        border-radius: 50%;
+        transition: all 0.2s;
+        color: var(--dimmed-text-color);
+
+        &:hover {
+          background-color: #0001;
+          color: var(--primary-text-color);
         }
       }
     }
