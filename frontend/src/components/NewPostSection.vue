@@ -38,9 +38,7 @@ const post = () => {
         v-model="inputContent"
       />
       <div class="post-footer">
-        <span :class="!canPost ? 'post-charcount-warn' : undefined"
-          >{{ inputContent.length }}/280文字</span
-        >
+        <span :class="{ 'post-charcount-warn': !canPost }">{{ inputContent.length }}/280文字</span>
         <span class="post-button">
           <Button :disabled="!canPost" :onclick="post">
             {{ parentId == undefined ? '投稿' : '返信' }}する</Button
