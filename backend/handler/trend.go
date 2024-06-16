@@ -29,11 +29,12 @@ type getTrendResponse struct {
 	ConvertedMessage string      `json:"converted_message"`
 	Reactions        []*reaction `json:"reactions"`
 	RootID           uuid.UUID   `json:"root_id"`
+	CreatedAt        time.Time   `json:"created_at"`
 }
 
 func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 	until := time.Now()
-	since := until.Add(-time.Hour * 2)
+	since := until.Add(-time.Minute * 30)
 	postLimit := 30
 
 	ctx := c.Request().Context()
@@ -85,6 +86,7 @@ func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 			ConvertedMessage: post.ConvertedMessage,
 			Reactions:        reactionsSlice,
 			RootID:           post.RootID,
+			CreatedAt:        post.CreatedAt.Local(),
 		}
 	}
 	return c.JSON(http.StatusOK, posts)
