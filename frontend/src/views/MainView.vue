@@ -52,6 +52,7 @@ fetchMore();
   <MainLayout>
     <div class="container">
       <NewPostSection @submit="fetchNew" />
+      <hr />
       <div class="posts">
         <div v-for="post in posts" :key="post.id">
           <Post
@@ -75,6 +76,11 @@ fetchMore();
 <style lang="scss" scoped>
 .container {
   padding-bottom: 50vh;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--dimmed-border-color);
 }
 
 .posts {
