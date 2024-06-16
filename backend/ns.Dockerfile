@@ -20,6 +20,6 @@ RUN --mount=type=cache,target=/go/pkg/mod/cache \
 COPY ./ ./
 
 RUN --mount=type=cache,target=/go/pkg/mod/cache \
-  && go build -o hakka-mura -ldflags "-s -w"
+  go build -o hakka-mura -ldflags "-s -w"
 
 ENTRYPOINT ./hakka-mura
