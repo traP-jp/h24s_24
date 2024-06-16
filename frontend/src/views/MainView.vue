@@ -55,8 +55,13 @@ fetchMore();
       <div class="posts">
         <div v-for="post in posts" :key="post.id">
           <router-link :to="`/posts/${post.id}`" class="post-link" v-if="post.root_id === post.id">
-            <Post :id="post.id" :content="post.converted_message" :date="new Date(post.created_at)"
-              :name="post.user_name" :reactions="convertReactions(post.reactions, post.my_reactions)" />
+            <Post
+              :id="post.id"
+              :content="post.converted_message"
+              :date="new Date(post.created_at)"
+              :name="post.user_name"
+              :reactions="convertReactions(post.reactions, post.my_reactions)"
+            />
           </router-link>
         </div>
       </div>
