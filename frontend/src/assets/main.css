@@ -1,8 +1,8 @@
 @import './base.css';
 
 :root {
-    --accent-color: #FF922B;
-    --primary-text-color: #1111111;
-    --dimmed-text-color: #888888;
-    --dimmed-border-color: #DDDDDD;
+  --accent-color: #ff922b;
+  --primary-text-color: #1111111;
+  --dimmed-text-color: #888888;
+  --dimmed-border-color: #dddddd;
 }
