@@ -10,14 +10,14 @@ import (
 )
 
 func NewDB() (*sqlx.DB, error) {
-	jst, _ := time.LoadLocation("Asia/Tokyo")
+	// jst, _ := time.LoadLocation("Asia/Tokyo")
 	mysqlConf := mysql.Config{
 		Net:                  "tcp",
 		User:                 cmp.Or(os.Getenv("DB_USER"), os.Getenv("NS_MARIADB_USER"), "root"),
 		Passwd:               cmp.Or(os.Getenv("DB_PASSWORD"), os.Getenv("NS_MARIADB_PASSWORD"), "password"),
 		Addr:                 cmp.Or(os.Getenv("DB_HOST"), os.Getenv("NS_MARIADB_HOSTNAME"), "db") + ":" + cmp.Or(os.Getenv("DB_PORT"), os.Getenv("NS_MARIADB_PORT"), "3306"),
 		DBName:               cmp.Or(os.Getenv("DB_NAME"), os.Getenv("NS_MARIADB_DATABASE"), "app"),
-		Loc:                  jst,
+		Loc:                  time.UTC,
 		AllowNativePasswords: true,
 		ParseTime:            true,
 		Collation:            "utf8mb4_general_ci",
