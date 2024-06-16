@@ -8,18 +8,16 @@ import NewPostSection from '@/components/NewPostSection.vue';
 import { convertReactions } from '@/features/reactions';
 
 const route = useRoute();
-if (route.params.id == undefined) {
-  // TODO: error, id not found
-}
-// const id = route.params.id as string;
+const id = ref<string>(route.params.id as string);
 const postContent = ref<GetPostResponse>();
-const loadPost = (id: string) => {
-  getPost(id).then((e) => (postContent.value = e));
+const loadPost = () => {
+  getPost(id.value).then((e) => (postContent.value = e));
 };
-loadPost(useRoute().params.id as string);
+loadPost();
 
 onBeforeRouteUpdate((to) => {
-  loadPost(to.params.id as string);
+  id.value = to.params.id as string;
+  loadPost();
 });
 </script>
 
@@ -39,7 +37,7 @@ onBeforeRouteUpdate((to) => {
             :name="ancestor.post.user_name"
             :reactions="convertReactions(ancestor.post.reactions, ancestor.post.my_reactions)"
             :id="ancestor.post.id"
-            @react="() => loadPost(useRoute().params.id as string)"
+            @react="() => loadPost()"
           />
           <div class="ancestor-bar" />
         </div>
@@ -51,14 +49,10 @@ onBeforeRouteUpdate((to) => {
           :reactions="convertReactions(postContent.reactions, postContent.my_reactions)"
           :id="postContent.id"
           detail
-          @react="() => loadPost(useRoute().params.id as string)"
+          @react="() => loadPost()"
         />
         <hr />
-        <NewPostSection
-          name=""
-          :parent-id="postContent.id"
-          @submit="() => loadPost(useRoute().params.id as string)"
-        />
+        <NewPostSection name="" :parent-id="postContent.id" @submit="() => loadPost()" />
         <hr />
         <div v-for="child in postContent.children" :key="child.post.id">
           <Post
@@ -68,7 +62,7 @@ onBeforeRouteUpdate((to) => {
             :name="child.post.user_name"
             :reactions="convertReactions(child.post.reactions, child.post.my_reactions)"
             :id="child.post.id"
-            @react="() => loadPost(useRoute().params.id as string)"
+            @react="() => loadPost()"
           />
           <hr />
         </div>
