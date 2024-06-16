@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"slices"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -40,9 +41,17 @@ func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	reactionID := (*int)(nil)
+	reactionIDRef := (*int)(nil)
+	if reactionIDString := c.QueryParams().Get("reaction_id"); reactionIDString != "" {
+		reactionID, err := strconv.Atoi(reactionIDString)
+		if err != nil {
+			log.Printf("failed to parse reaction_id: %v", err)
+			return echo.NewHTTPError(http.StatusBadRequest, "failed to parse reaction_id")
+		}
+		reactionIDRef = &reactionID
+	}
 
-	counts, err := tr.rr.GetReactionCountsGroupedByPostID(ctx, reactionID, since, until)
+	counts, err := tr.rr.GetReactionCountsGroupedByPostID(ctx, reactionIDRef, since, until)
 	if err != nil {
 		log.Printf("failed to get reactions: %v\n", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
