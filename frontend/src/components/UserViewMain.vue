@@ -4,9 +4,9 @@ import MainLayout from '@/components/MainLayout.vue';
 import Avatar from '@/components/Avatar.vue';
 import Post from '@/components/Post.vue';
 
-import { getReactions } from '@/features/post';
 import { getUser } from '@/features/api';
 import { useFetcher } from '@/features/useFetcher';
+import { convertReactions } from '@/features/reactions';
 
 const props = defineProps<{
   username: string;
@@ -48,7 +48,7 @@ const { data, loading } = useFetcher(() => getUser(props.username));
           :name="post.user_name"
           :date="new Date(post.created_at)"
           :content="post.converted_message"
-          :reactions="getReactions(post)"
+          :reactions="convertReactions(post.reactions, post.my_reactions)"
         />
       </div>
     </div>
