@@ -125,3 +125,16 @@ func (uh *UserHandler) GetUserHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, res)
 }
+
+type getMeResponse struct {
+	Username string `js:"user_name"`
+}
+
+func (uh *UserHandler) GetMeHandler(c echo.Context) error {
+	username, err := getUserName(c)
+	if err != nil {
+		log.Printf("failed to get username: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get username")
+	}
+	return c.JSON(http.StatusOK, getMeResponse{username})
+}
