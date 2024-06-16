@@ -58,19 +58,18 @@ const vTwemoji = {
 </script>
 
 <template>
-  <router-link :to="`/posts/${id}/`" class="post-link">
-    <div class="post">
-      <div class="post-author-icon">
-        <Avatar size="48px" :name="name" />
+  <div class="post">
+    <div class="post-author-icon">
+      <Avatar size="48px" :name="name" />
+    </div>
+    <div class="post-content">
+      <div class="post-header">
+        <span class="post-author">@{{ name }}</span>
+        <span class="post-date">{{ dateText }}</span>
       </div>
-      <div class="post-content">
-        <div class="post-header">
-          <span class="post-author">@{{ name }}</span>
-          <span class="post-date">{{ dateText }}</span>
-        </div>
-        <div class="post-message">
-          {{ content }}
-        </div>
+      <div class="post-message">
+        {{ content }}
+      </div>
       <div class="post-reactions">
         <button
           v-for="reaction in copiedReactions"
@@ -90,7 +89,7 @@ const vTwemoji = {
         </button>
       </div>
     </div>
-  </router-link>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -106,12 +105,14 @@ const vTwemoji = {
     background-color: var(--dimmed-border-color);
   }
 }
+
 :global(.twemoji) {
   height: 1em;
   width: 1em;
   margin: 0 0.05em 0 0.1em;
   vertical-align: -0.1em;
 }
+
 .post {
   display: flex;
   padding: 16px;
