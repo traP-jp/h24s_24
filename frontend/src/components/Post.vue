@@ -124,7 +124,7 @@ const vTwemoji = {
   }
 
   &-content {
-    width: 480px;
+    min-width: 0;
 
     .post-header {
       margin-bottom: 8px;
