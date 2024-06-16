@@ -1,11 +1,20 @@
 <script lang="ts" setup>
 import { reactionIcons } from '@/features/reactions';
+import twemoji from 'twemoji';
 import { ref } from 'vue';
 
 const emits = defineEmits<{
   (e: 'change', id: number): void;
 }>();
 const value = ref<number>(0);
+
+const vTwemoji = {
+  mounted: (el: HTMLElement) => {
+    el.innerHTML = twemoji.parse(el.innerHTML, {
+      className: 'twemoji',
+    });
+  },
+};
 </script>
 
 <template>
@@ -20,12 +29,19 @@ const value = ref<number>(0);
         v-model="value"
         @change="emits('change', value)"
       />
-      <label :for="`radio${id}`">{{ reaction }}️</label>
+      <label :for="`radio${id}`" v-twemoji>{{ reaction }}️</label>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+:global(.icon-area .twemoji) {
+  height: 1.2em;
+  width: 1.2em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.1em;
+}
+
 .icon-area {
   display: flex;
 }
