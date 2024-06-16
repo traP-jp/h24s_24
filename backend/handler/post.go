@@ -82,7 +82,7 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "message empty")
 	}
 
-	convertedMessage, err := ph.pc.ConvertMessage(ctx, post.Message)
+	convertedMessage, err := ph.pc.ConvertMessage(ctx, originalMessage)
 	if err != nil {
 		log.Printf("failed to convert message: %v\n", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to convert message")
