@@ -50,8 +50,13 @@ async function toggleReaction(reaction: Reaction) {
         {{ content }}
       </div>
       <div class="post-reactions">
-        <button v-for="reaction in reactions" :key="reaction.id" class="post-reaction"
-          :class="{ clicked: reaction.clicked }" @click="() => toggleReaction(reaction)">
+        <button
+          v-for="reaction in reactions"
+          :key="reaction.id"
+          class="post-reaction"
+          :class="{ clicked: reaction.clicked }"
+          @click="() => toggleReaction(reaction)"
+        >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </button>
@@ -106,7 +111,7 @@ async function toggleReaction(reaction: Reaction) {
         display: flex;
         align-items: center;
 
-        &>* {
+        & > * {
           opacity: 40%;
         }
 
@@ -123,7 +128,7 @@ async function toggleReaction(reaction: Reaction) {
         }
 
         &.clicked {
-          &>* {
+          & > * {
             opacity: 100%;
           }
 
