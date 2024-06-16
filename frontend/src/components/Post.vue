@@ -5,6 +5,7 @@ import moment from 'moment-timezone';
 import { effect, ref } from 'vue';
 import { reactionIcons } from '@/features/reactions';
 import { deleteReaction, postReaction } from '@/features/api';
+import twemoji from 'twemoji';
 
 type Reaction = { id: number; count: number; clicked: boolean };
 
@@ -46,6 +47,14 @@ async function toggleReaction(reaction: Reaction) {
     emits('react');
   }
 }
+
+const vTwemoji = {
+  mounted: (el: HTMLElement) => {
+    el.innerHTML = twemoji.parse(el.innerHTML, {
+      className: 'twemoji',
+    });
+  },
+};
 </script>
 
 <template>
@@ -69,7 +78,7 @@ async function toggleReaction(reaction: Reaction) {
           :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
           @click="() => toggleReaction(reaction)"
         >
-          <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
+          <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </button>
       </div>
@@ -78,6 +87,13 @@ async function toggleReaction(reaction: Reaction) {
 </template>
 
 <style lang="scss" scoped>
+:global(.twemoji) {
+  height: 1em;
+  width: 1em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.1em;
+}
+
 .post {
   display: flex;
   padding: 16px;
@@ -153,6 +169,8 @@ async function toggleReaction(reaction: Reaction) {
         }
 
         &.clicked {
+          background-color: var(--accent-color-10);
+
           & > * {
             opacity: 100%;
           }

@@ -1,6 +1,6 @@
 import type { Reaction } from '@/features/api';
 
-export const reactionIcons = ['🩷', '🔥', '💧', '😢', '🤔'];
+export const reactionIcons = ['❤️', '🔥', '🚒', '😢', '🤔'];
 
 export const convertReactions = (src: Reaction[], my: number[]) => {
   const dist: { id: number; count: number; clicked: boolean }[] = [];
