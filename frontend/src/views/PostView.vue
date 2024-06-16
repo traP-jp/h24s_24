@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import MainLayout from '@/components/MainLayout.vue';
 import { useRoute } from 'vue-router';
-import { getPost, type GetPostResponse} from '@/features/api';
+import { getPost, type GetPostResponse } from '@/features/api';
 import { ref } from 'vue';
 import Post from '@/components/Post.vue';
-import {convertReactions} from '@/features/reactions';
+import { convertReactions } from '@/features/reactions';
 import NewPostSection from '@/components/NewPostSection.vue';
 
 const route = useRoute();

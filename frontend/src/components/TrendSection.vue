@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {reactionIcons} from "@/features/reactions";
-import {ref} from "vue";
+import { reactionIcons } from '@/features/reactions';
+import { ref } from 'vue';
 
 const emits = defineEmits<{
   (e: 'change', id: number): void;
@@ -11,7 +11,15 @@ const value = ref<number>(0);
 <template>
   <div class="icon-area">
     <div v-for="(reaction, id) in reactionIcons" class="icon-part" :key="id">
-      <input class="radio-button" :id="`radio${id}`" type="radio" name="icons" :value="id" v-model="value" @change="emits('change', value)">
+      <input
+        class="radio-button"
+        :id="`radio${id}`"
+        type="radio"
+        name="icons"
+        :value="id"
+        v-model="value"
+        @change="emits('change', value)"
+      />
       <label :for="`radio${id}`">{{ reaction }}️</label>
     </div>
   </div>
