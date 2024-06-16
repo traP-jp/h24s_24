@@ -167,16 +167,15 @@ const vTwemoji = {
       opacity: 0%;
       transition: all 0.2s ease-out;
       z-index: 1;
-      bottom: -34px;
+      bottom: 12px;
       left: 0;
-      height: 30px;
-      transform: translateY(-16px);
+      transform: translateY(100%);
     }
 
     .post-message:hover + .original-message {
       visibility: visible;
       opacity: 100%;
-      transform: translateY(0);
+      bottom: -4px;
     }
 
     .detail-original-message {
