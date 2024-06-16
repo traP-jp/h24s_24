@@ -27,6 +27,27 @@ type Reaction struct {
 	CreatedAt  time.Time `db:"created_at"`
 }
 
+func (rr *ReactionRepository) DeleteReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) ([]*domain.Reaction, error) {
+	res, err := rr.DB.Exec("DELETE FROM posts_reactions WHERE post_id=? AND reaction_id=? AND user_name=?", postID, reactionID, userName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete reaction: %w", err)
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get number of rows affected: %w", err)
+	}
+	if rowsAffected == 0 {
+		return nil, domain.ReactionNotFoundError
+	}
+
+	reaction, err := rr.GetReactionsByPostID(ctx, postID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get reactions: %w", err)
+	}
+	return reaction, nil
+}
+
 func (rr *ReactionRepository) GetReactionsByPostID(ctx context.Context, postID uuid.UUID) ([]*domain.Reaction, error) {
 	var postReactions []Reaction
 	err := rr.DB.Select(&postReactions, "SELECT * FROM posts_reactions WHERE post_id = ? ORDER BY created_at DESC", postID)

@@ -60,45 +60,60 @@ const vTwemoji = {
 </script>
 
 <template>
-  <div class="post">
-    <div class="post-author-icon">
-      <Avatar size="48px" :name="name" />
-    </div>
-    <div class="post-content">
-      <div class="post-header">
-        <span class="post-author">@{{ name }}</span>
-        <span class="post-date">{{ dateText }}</span>
+  <router-link :to="`/posts/${id}/`" class="post-link">
+    <div class="post">
+      <div class="post-author-icon">
+        <Avatar size="48px" :name="name" />
       </div>
-      <div class="post-message-container">
-        <div class="post-message">
-          {{ content }}
+      <div class="post-content">
+        <div class="post-header">
+          <span class="post-author">@{{ name }}</span>
+          <span class="post-date">{{ dateText }}</span>
         </div>
-        <div v-if="!detail" class="original-message">{{ originalContent }}</div>
-        <div v-if="detail" class="detail-original-message">{{ originalContent }}</div>
-      </div>
-      <div class="post-reactions">
-        <button
-          v-for="reaction in copiedReactions"
-          :key="reaction.id"
-          class="post-reaction"
-          :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-          @click="
-            (e) => {
-              toggleReaction(reaction);
-              e.stopPropagation();
-              e.preventDefault();
-            }
-          "
-        >
-          <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
-          <span class="post-reaction-count">{{ reaction.count }}</span>
-        </button>
+        <div class="post-message-container">
+          <div class="post-message">
+            {{ content }}
+          </div>
+          <div v-if="!detail" class="original-message">{{ originalContent }}</div>
+          <div v-if="detail" class="detail-original-message">{{ originalContent }}</div>
+        </div>
+        <div class="post-reactions">
+          <button
+            v-for="reaction in copiedReactions"
+            :key="reaction.id"
+            class="post-reaction"
+            :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
+            @click="
+              (e) => {
+                toggleReaction(reaction);
+                e.stopPropagation();
+                e.preventDefault();
+              }
+            "
+          >
+            <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
+            <span class="post-reaction-count">{{ reaction.count }}</span>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </router-link>
 </template>
 
 <style lang="scss" scoped>
+.post-link {
+  text-decoration: none;
+  color: inherit;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: var(--dimmed-border-color);
+  }
+}
+
 :global(.twemoji) {
   height: 1em;
   width: 1em;
