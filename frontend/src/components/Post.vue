@@ -14,6 +14,7 @@ const props = defineProps<{
   name: string;
   date: Date;
   content: string;
+  originalContent: string;
   reactions: Reaction[];
 }>();
 const emits = defineEmits<{
@@ -69,6 +70,7 @@ const vTwemoji = {
       </div>
       <div class="post-message">
         {{ content }}
+        <span class="original-message">元のメッセージ : {{ originalContent }}</span>
       </div>
       <div class="post-reactions">
         <button
@@ -129,6 +131,31 @@ const vTwemoji = {
       max-width: 100%;
       overflow-wrap: break-word;
       margin-bottom: 8px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .original-message {
+      width: 80%;
+      font-size: 11px;
+      position: absolute;
+      left:50%;
+      bottom:0%;
+      transform: translateX(0%);
+      margin-bottom: 0px;
+      padding: 8px;
+      border-radius: 8px;
+      background-color: #888888;
+      color: white;
+      text-align: center;
+      visibility: hidden;
+      opacity: 0%;
+      z-index: 1;
+    }
+    .post-message:hover .original-message {
+      bottom: -80px;
+      visibility: visible;
+      opacity: 80%;
     }
 
     .post-reactions {

@@ -26,6 +26,7 @@ loadPost();
         <div v-for="ancestor in postContent.ancestors" :key="ancestor.post.id">
           <Post
             :content="ancestor.post.converted_message"
+            :originalContent = "ancestor.post.original_message"
             :date="new Date(ancestor.post.created_at)"
             :name="ancestor.post.user_name"
             :reactions="convertReactions(ancestor.post.reactions, ancestor.post.my_reactions)"
@@ -36,6 +37,7 @@ loadPost();
         <hr />
         <Post
           :content="postContent.converted_message"
+          :originalContent = "postContent.original_message"
           :date="new Date(postContent.created_at)"
           :name="postContent.user_name"
           :reactions="convertReactions(postContent.reactions, postContent.my_reactions)"
@@ -48,6 +50,7 @@ loadPost();
         <div v-for="child in postContent.children" :key="child.post.id">
           <Post
             :content="child.post.converted_message"
+            :originalContent = "child.post.original_message"
             :date="new Date(child.post.created_at)"
             :name="child.post.user_name"
             :reactions="convertReactions(child.post.reactions, child.post.my_reactions)"
