@@ -54,7 +54,7 @@ async function toggleReaction(reaction: Reaction) {
           v-for="reaction in reactions"
           :key="reaction.id"
           class="post-reaction"
-          :class="reaction.clicked ? ['clicked'] : undefined"
+          :class="{ clicked: reaction.clicked }"
           @click="() => toggleReaction(reaction)"
         >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
