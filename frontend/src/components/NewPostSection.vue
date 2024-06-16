@@ -48,7 +48,9 @@ const post = async () => {
         :disabled="loading"
       />
       <div class="post-footer">
-        <span :class="{ 'post-charcount-warn': !canPost }">{{ inputContent.length }}/280文字</span>
+        <span :class="{ 'post-charcount-warn': !canPost }" v-if="inputContent.length > 0"
+          >{{ inputContent.length }}/280文字</span
+        >
         <span class="post-button">
           <Button :disabled="!canPost || loading" :onclick="post">
             {{ parentId == undefined ? '投稿' : '返信' }}する</Button
