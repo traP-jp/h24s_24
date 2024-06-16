@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import MainLayout from '@/components/MainLayout.vue';
 import { useRoute } from 'vue-router';
-import { getPost, type GetPostResponse, type Reaction } from '@/features/api';
+import { getPost, type GetPostResponse} from '@/features/api';
 import { ref } from 'vue';
 import Post from '@/components/Post.vue';
-import { reactionIcons } from '@/features/reactions';
+import {convertReactions} from '@/features/reactions';
 import NewPostSection from '@/components/NewPostSection.vue';
 
 const route = useRoute();
@@ -17,27 +17,6 @@ const loadPost = () => {
   getPost(id).then((e) => (postContent.value = e));
 };
 loadPost();
-
-const convertReactions = (src: Reaction[], my: number[]) => {
-  const dist: { id: number; count: number; clicked: boolean }[] = [];
-  for (let i = 0; i < reactionIcons.length; i++) {
-    const found = src.find((r) => r.id == i);
-    if (found) {
-      dist.push({
-        id: i,
-        count: found.count,
-        clicked: my.find((m) => m == i) != undefined,
-      });
-    } else {
-      dist.push({
-        id: i,
-        count: 0,
-        clicked: false,
-      });
-    }
-  }
-  return dist;
-};
 </script>
 
 <template>

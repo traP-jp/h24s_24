@@ -172,7 +172,7 @@ export const getReactions = async (postId: string) => {
 };
 
 export type GetTrendResponse = Array<Post>;
-export const getTrend = async (reactionId: number) => {
+export const getTrend = async (reactionId: number): Promise<GetTrendResponse> => {
   return fetchApi('GET', '/trend', { parameters: { reaction_id: reactionId.toString() } });
 };
 
