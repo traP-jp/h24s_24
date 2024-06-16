@@ -21,24 +21,20 @@ const dateText = ref(getDateText());
 
 <template>
   <div class="post">
-    <div class="post-author-icon">
+    <router-link :to="`/users/${name}`" class="post-author-icon">
       <Avatar size="48px" :name="name" />
-    </div>
+    </router-link>
     <div class="post-content">
       <div class="post-header">
-        <span class="post-author">@{{ name }}</span>
+        <router-link :to="`/users/${name}`" class="post-author">@{{ name }}</router-link>
         <span class="post-date">{{ dateText }}</span>
       </div>
       <div class="post-message">
         {{ content }}
       </div>
       <div class="post-reactions">
-        <div
-          v-for="reaction in reactions"
-          :key="reaction.id"
-          class="post-reaction"
-          :class="reaction.clicked ? ['clicked'] : undefined"
-        >
+        <div v-for="reaction in reactions" :key="reaction.id" class="post-reaction"
+          :class="reaction.clicked ? ['clicked'] : undefined">
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </div>
@@ -66,6 +62,12 @@ const dateText = ref(getDateText());
       .post-author {
         margin-right: 6px;
         font-weight: bold;
+        text-decoration: none;
+        color: inherit;
+
+        &:hover {
+          text-decoration: underline;
+        }
       }
 
       .post-date {
