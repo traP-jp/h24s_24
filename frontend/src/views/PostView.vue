@@ -46,6 +46,7 @@ const convertReactions = (src: Reaction[], my: number[]) => {
           :date="new Date(ancestor.post.created_at)"
           :name="ancestor.post.user_name"
           :reactions="convertReactions(ancestor.post.reactions, ancestor.post.my_reactions)"
+          :id="ancestor.post.id"
         />
       </div>
       <hr />
@@ -54,19 +55,18 @@ const convertReactions = (src: Reaction[], my: number[]) => {
         :date="new Date(postContent.created_at)"
         :name="postContent.user_name"
         :reactions="convertReactions(postContent.reactions, postContent.my_reactions)"
+        :id="postContent.id"
       />
       <hr />
-      <NewPostSection
-        name=""
-        :parent-id="postContent.ancestors[postContent.ancestors.length - 1].post.id"
-      />
+      <NewPostSection name="" :parent-id="postContent.id" />
       <!-- TODO: -->
-      <div v-for="children in postContent.children" :key="children.post.id">
+      <div v-for="child in postContent.children" :key="child.post.id">
         <Post
-          :content="children.post.converted_message"
-          :date="new Date(children.post.created_at)"
-          :name="children.post.user_name"
-          :reactions="convertReactions(children.post.reactions, children.post.my_reactions)"
+          :content="child.post.converted_message"
+          :date="new Date(child.post.created_at)"
+          :name="child.post.user_name"
+          :reactions="convertReactions(child.post.reactions, child.post.my_reactions)"
+          :id="child.post.id"
         />
       </div>
     </div>

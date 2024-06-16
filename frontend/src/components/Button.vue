@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <button type="button" :disabled="disabled" onclick="onclick"><slot /></button>
+  <button type="button" :disabled="disabled" :onclick="onclick"><slot /></button>
 </template>
 
 <style lang="scss" scoped>

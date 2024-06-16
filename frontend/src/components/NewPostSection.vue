@@ -2,8 +2,9 @@
 import Button from './Button.vue';
 import Avatar from './Avatar.vue';
 import { ref, computed } from 'vue';
+import { createPost } from '@/features/api';
 
-defineProps<{
+const props = defineProps<{
   name: string;
   parentId?: string;
 }>();
@@ -16,7 +17,15 @@ const canPost = computed(() => {
   return inputContent.value.length != 0 && inputContent.value.length <= 280;
 });
 const post = () => {
-  // TODO: {inputContent.value, props.parent_id}で/postsにPOST
+  createPost({
+    message: inputContent.value,
+    parent_id: props.parentId,
+  });
+
+  console.log({
+    message: inputContent.value,
+    parent_id: props.parentId,
+  });
   inputContent.value = '';
   emit('submit');
 };
@@ -38,7 +47,9 @@ const post = () => {
           >{{ inputContent.length }}/280文字</span
         >
         <span class="post-button">
-          <Button :disabled="!canPost"> {{ parentId == undefined ? '投稿' : '返信' }}する</Button>
+          <Button :disabled="!canPost" :onclick="post">
+            {{ parentId == undefined ? '投稿' : '返信' }}する</Button
+          >
         </span>
       </div>
     </div>
