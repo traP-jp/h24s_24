@@ -2,7 +2,7 @@
 import MainLayout from '@/components/MainLayout.vue';
 import { useRoute } from 'vue-router';
 import { getPost, type GetPostResponse } from '@/features/api';
-import { ref } from 'vue';
+import {ref, watch} from 'vue';
 import Post from '@/components/Post.vue';
 import NewPostSection from '@/components/NewPostSection.vue';
 import { convertReactions } from '@/features/reactions';
@@ -17,6 +17,10 @@ const loadPost = () => {
   getPost(id).then((e) => (postContent.value = e));
 };
 loadPost();
+
+watch(useRoute(), (_, __) => {
+  location.reload();
+});
 </script>
 
 <template>
