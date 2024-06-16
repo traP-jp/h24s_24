@@ -51,6 +51,7 @@ const { data, loading } = useFetcher(() => getUser(props.username));
           :original-content="post.original_message"
           :reactions="convertReactions(post.reactions, post.my_reactions)"
         />
+        <hr />
       </div>
     </div>
     <div v-if="loading" class="user-view-loader">

@@ -63,6 +63,7 @@ fetchMore();
             :originalContent="post.original_message"
             :reactions="convertReactions(post.reactions, post.my_reactions)"
           />
+          <hr />
         </div>
       </div>
       <IntersectionObserver @intersect="fetchMore" />
