@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -65,10 +66,12 @@ func (pr *PostRepository) GetPostsAfter(ctx context.Context, after uuid.UUID, li
 	}
 
 	var posts []post
-	err = pr.db.Select(&posts, "SELECT * FROM posts WHERE created_at > ? ORDER BY created_at DESC LIMIT ?", afterPost.CreatedAt, limit)
+	err = pr.db.Select(&posts, "SELECT * FROM posts WHERE created_at > ? ORDER BY created_at ASC LIMIT ?", afterPost.CreatedAt, limit)
 	if err != nil {
 		return nil, err
 	}
+
+	slices.Reverse(posts)
 
 	var domainPosts []*domain.Post
 	for _, p := range posts {
