@@ -123,7 +123,11 @@ export type GetPostsParameters = {
    */
   limit?: number;
   /**
-   * このIDの投稿より後に投稿されたものを取得する。指定されない場合は、最新のものからlimit件取得する
+   * このIDの投稿より前に投稿されたものを取得する。指定されない場合は、最新のものからlimit件取得する (afterと一緒には指定できない)
+   */
+  before?: string;
+  /**
+   * このIDの投稿より後に投稿されたものを取得する。指定されない場合は、最新のものからlimit件取得する  (beforeと一緒には指定できない)
    */
   after?: string;
   /**
@@ -143,11 +147,17 @@ export type GetPostsResponse = Array<
 >;
 export const getPosts = async ({
   limit,
+  before,
   after,
   repost,
 }: GetPostsParameters): Promise<GetPostsResponse> => {
   return fetchApi('GET', '/posts', {
-    parameters: { limit: limit?.toString() ?? '30', after, repost: repost?.toString() ?? 'false' },
+    parameters: {
+      limit: limit?.toString() ?? '30',
+      before,
+      after,
+      repost: repost?.toString() ?? 'false',
+    },
   });
 };
 
@@ -157,28 +167,34 @@ export const getPost = async (postId: string): Promise<GetPostResponse> => {
 };
 
 export type PostReactionResponse = Reaction[];
-export const postReaction = async (postId: string, reactionId: number) => {
+export const postReaction = async (
+  postId: string,
+  reactionId: number,
+): Promise<PostReactionResponse> => {
   return fetchApi('POST', `/posts/${postId}/reactions/${reactionId}`);
 };
 
 export type DeleteReactionResponse = Reaction[];
-export const deleteReaction = async (postId: string, reactionId: number) => {
+export const deleteReaction = async (
+  postId: string,
+  reactionId: number,
+): Promise<DeleteReactionResponse> => {
   return fetchApi('DELETE', `/posts/${postId}/reactions/${reactionId}`);
 };
 
 export type GetReactionsResponse = ReactionDetail[];
-export const getReactions = async (postId: string) => {
+export const getReactions = async (postId: string): Promise<GetReactionsResponse> => {
   return fetchApi('GET', `/posts/${postId}/reactions`);
 };
 
 export type GetTrendResponse = Array<Post>;
-export const getTrend = async (reactionId: number) => {
+export const getTrend = async (reactionId: number): Promise<GetTrendResponse> => {
   return fetchApi('GET', '/trend', { parameters: { reaction_id: reactionId.toString() } });
 };
 
 export type GetUserResponse = {
   /**
-   * ユーザーID
+   * ユーザー名
    */
   user_name: string;
   /**
@@ -198,6 +214,16 @@ export type GetUserResponse = {
    */
   posts: Post[];
 };
-export const getUser = async (userName: string) => {
-  return fetchApi('GET', `/user/${userName}`);
+export const getUser = async (userName: string): Promise<GetUserResponse> => {
+  return fetchApi('GET', `/users/${userName}`);
+};
+
+export type GetMeResponse = {
+  /**
+   * ユーザー名
+   */
+  user_name: string;
+};
+export const getMe = async (): Promise<GetMeResponse> => {
+  return fetchApi('GET', '/me');
 };
