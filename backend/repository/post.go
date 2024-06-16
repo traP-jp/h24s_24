@@ -210,14 +210,12 @@ func (pr *PostRepository) GetAncestors(ctx context.Context, postID uuid.UUID) ([
 			"FROM posts p JOIN parent_cte c ON p.id = c.parent_id "+
 			"WHERE p.id <> p.parent_id"+
 		") "+
-		"SELECT * FROM parent_cte UNION ALL "+
 		"SELECT id, user_name, original_message, converted_message, parent_id, root_id, created_at "+
-		"FROM posts WHERE id = ? AND id <> ? AND id <> ?;", p.ParentID, p.RootID, p.ID, p.ParentID)
+		"FROM posts WHERE id = ? AND id <> ? AND id <> ? "+
+		"UNION ALL SELECT * FROM parent_cte ORDER BY created_at ASC;", p.ParentID, p.RootID, p.ID, p.ParentID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get ancestors: %w", err)
 	}
-
-	slices.Reverse(posts)	
 
 	domainPosts := make([]*domain.Post, 0, len(posts))
 	for _, p := range posts {
