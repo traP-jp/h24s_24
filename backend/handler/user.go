@@ -21,21 +21,21 @@ type UserHandler struct {
 }
 
 type GetUserResponse struct {
-	UserName         string
-	PostCount        int
-	ReactionCount    int
-	GetReactionCount int
+	UserName         string `json:"user_name"`
+	PostCount        int    `json:"post_count"`
+	ReactionCount    int    `json:"reaction_count"`
+	GetReactionCount int    `json:"get_reaction_count"`
 	Posts            []struct {
-		ID               string
-		UserName         string
-		OriginalMessage  string
-		ConvertedMessage string
-		ParentID         string
-		RootID           string
-		Reactions        []reactionCount
-		MyReactions      []int
-		CreatedAt        time.Time
-	}
+		ID               string          `json:"id"`
+		UserName         string          `json:"user_name"`
+		OriginalMessage  string          `json:"original_message"`
+		ConvertedMessage string          `json:"converted_message"`
+		ParentID         string          `json:"parent_id"`
+		RootID           string          `json:"root_id"`
+		Reactions        []reactionCount `json:"reactions"`
+		MyReactions      []int           `json:"my_reactions"`
+		CreatedAt        time.Time       `json:"created_at"`
+	} `json:"posts"`
 }
 
 func (uh *UserHandler) GetUserHandler(c echo.Context) error {
@@ -101,15 +101,15 @@ func (uh *UserHandler) GetUserHandler(c echo.Context) error {
 		}
 
 		res.Posts = append(res.Posts, struct {
-			ID               string
-			UserName         string
-			OriginalMessage  string
-			ConvertedMessage string
-			ParentID         string
-			RootID           string
-			Reactions        []reactionCount
-			MyReactions      []int
-			CreatedAt        time.Time
+			ID               string          `json:"id"`
+			UserName         string          `json:"user_name"`
+			OriginalMessage  string          `json:"original_message"`
+			ConvertedMessage string          `json:"converted_message"`
+			ParentID         string          `json:"parent_id"`
+			RootID           string          `json:"root_id"`
+			Reactions        []reactionCount `json:"reactions"`
+			MyReactions      []int           `json:"my_reactions"`
+			CreatedAt        time.Time       `json:"created_at"`
 		}{
 			ID:               post.ID.String(),
 			UserName:         post.UserName,
