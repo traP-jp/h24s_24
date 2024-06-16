@@ -15,6 +15,7 @@ const props = defineProps<{
   date: Date;
   content: string;
   originalContent: string;
+  detail?: boolean;
   reactions: Reaction[];
 }>();
 const emits = defineEmits<{
@@ -68,11 +69,12 @@ const vTwemoji = {
         <span class="post-author">@{{ name }}</span>
         <span class="post-date">{{ dateText }}</span>
       </div>
-      <div class="post-message">
-        <span>
+      <div class="post-message-container">
+        <div class="post-message">
           {{ content }}
-        </span>
-        <span class="original-message">元のメッセージ : {{ originalContent }}</span>
+        </div>
+        <div v-if="!detail" class="original-message">元のメッセージ : {{ originalContent }}</div>
+        <div v-if="detail" class="detail-original-message">元のメッセージ : {{ originalContent }}</div>
       </div>
       <div class="post-reactions">
         <button v-for="reaction in copiedReactions" :key="reaction.id" class="post-reaction"
@@ -123,6 +125,10 @@ const vTwemoji = {
       }
     }
 
+    .post-message-container {
+      position: relative;
+    }
+
     .post-message {
       max-width: 100%;
       overflow-wrap: break-word;
@@ -138,23 +144,20 @@ const vTwemoji = {
       border-radius: 8px;
       background-color: #000a;
       color: white;
-      text-align: center;
       visibility: hidden;
       opacity: 0%;
-      transition: visibility 0.2s, opacity 0.2s;
+      transition: all 0.2s ease-out;
       z-index: 1;
       bottom: -38px;
       left: 0;
       height: 30px;
+      transform: translateY(-16px);
     }
 
-    .post-message {
-      position: relative;
-
-      &:hover .original-message {
-        visibility: visible;
-        opacity: 100%;
-      }
+    .post-message:hover+.original-message {
+      visibility: visible;
+      opacity: 100%;
+      transform: translateY(0);
     }
 
     .post-reactions {
