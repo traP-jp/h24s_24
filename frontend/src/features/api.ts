@@ -172,8 +172,8 @@ export const getReactions = async (postId: string) => {
 };
 
 export type GetTrendResponse = Array<Post>;
-export const getTrend = async () => {
-  return fetchApi('GET', '/trend');
+export const getTrend = async (reactionId: number) => {
+  return fetchApi('GET', '/trend', { parameters: { reaction_id: reactionId.toString() } });
 };
 
 export type GetUserResponse = {
