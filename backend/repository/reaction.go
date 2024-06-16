@@ -71,9 +71,9 @@ func (rr *ReactionRepository) GetReactionCountsGroupedByPostID(ctx context.Conte
 	)
 
 	if reactionID == nil {
-		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE created_at BETWEEN ? AND ? GROUP BY post_id", since, until)
+		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE created_at BETWEEN ? AND ? GROUP BY post_id ORDER BY reaction_count DESC", since, until)
 	} else {
-		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE reaction_id=? AND created_at BETWEEN ? AND ? GROUP BY post_id", *reactionID, since, until)
+		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE reaction_id=? AND created_at BETWEEN ? AND ? GROUP BY post_id ORDER BY reaction_count DESC", *reactionID, since, until)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to get reactions: %w", err)

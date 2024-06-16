@@ -1,16 +1,13 @@
 package handler
 
 import (
-	"cmp"
 	"log"
 	"net/http"
-	"slices"
 	"strconv"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/traP-jp/h24s_24/domain"
 )
 
 type TrendHandler struct {
@@ -36,7 +33,7 @@ type getTrendResponse struct {
 
 func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 	until := time.Now()
-	since := until.Add(-time.Hour * 30)
+	since := until.Add(-time.Hour * 12)
 	postLimit := 30
 
 	ctx := c.Request().Context()
@@ -56,13 +53,6 @@ func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 		log.Printf("failed to get reactions: %v\n", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
 	}
-	slices.SortFunc(counts, func(a, b *domain.ReactionCount) int {
-		n := b.Count - a.Count
-		if n != 0 {
-			return n
-		}
-		return cmp.Compare(a.PostID.ID(), b.PostID.ID())
-	})
 
 	postIDs := make([]uuid.UUID, len(counts))
 	for i, v := range counts {
