@@ -21,12 +21,12 @@ const dateText = ref(getDateText());
 
 <template>
   <div class="post">
-    <div class="post-author-icon">
+    <router-link :to="`/users/${name}`" class="post-author-icon">
       <Avatar size="48px" :name="name" />
-    </div>
+    </router-link>
     <div class="post-content">
       <div class="post-header">
-        <span class="post-author">@{{ name }}</span>
+        <router-link :to="`/users/${name}`" class="post-author">@{{ name }}</router-link>
         <span class="post-date">{{ dateText }}</span>
       </div>
       <div class="post-message">
@@ -66,6 +66,12 @@ const dateText = ref(getDateText());
       .post-author {
         margin-right: 6px;
         font-weight: bold;
+        text-decoration: none;
+        color: inherit;
+
+        &:hover {
+          text-decoration: underline;
+        }
       }
 
       .post-date {

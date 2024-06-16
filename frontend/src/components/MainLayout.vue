@@ -20,7 +20,7 @@ import SideNavigation from '@/components/SideNavigation.vue';
 }
 
 main {
-  height: 100vh;
+  min-height: 100vh;
   margin: 0 auto;
 }
 
