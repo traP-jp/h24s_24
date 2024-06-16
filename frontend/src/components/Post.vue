@@ -49,35 +49,49 @@ async function toggleReaction(reaction: Reaction) {
 </script>
 
 <template>
-  <div class="post">
-    <div class="post-author-icon">
-      <Avatar size="48px" :name="name" />
+  <router-link :to="`/posts/${id}/`" class="post-link">
+    <div class="post">
+      <div class="post-author-icon">
+        <Avatar size="48px" :name="name" />
+      </div>
+      <div class="post-content">
+        <div class="post-header">
+          <span class="post-author">@{{ name }}</span>
+          <span class="post-date">{{ dateText }}</span>
+        </div>
+        <div class="post-message">
+          {{ content }}
+        </div>
+        <div class="post-reactions">
+          <button
+            v-for="reaction in copiedReactions"
+            :key="reaction.id"
+            class="post-reaction"
+            :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
+            @click="() => toggleReaction(reaction)"
+          >
+            <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
+            <span class="post-reaction-count">{{ reaction.count }}</span>
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="post-content">
-      <div class="post-header">
-        <span class="post-author">@{{ name }}</span>
-        <span class="post-date">{{ dateText }}</span>
-      </div>
-      <div class="post-message">
-        {{ content }}
-      </div>
-      <div class="post-reactions">
-        <button
-          v-for="reaction in copiedReactions"
-          :key="reaction.id"
-          class="post-reaction"
-          :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-          @click="() => toggleReaction(reaction)"
-        >
-          <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
-          <span class="post-reaction-count">{{ reaction.count }}</span>
-        </button>
-      </div>
-    </div>
-  </div>
+  </router-link>
 </template>
 
 <style lang="scss" scoped>
+.post-link {
+  text-decoration: none;
+  color: inherit;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 1px;
+    background-color: var(--dimmed-border-color);
+  }
+}
 .post {
   display: flex;
   padding: 16px;
