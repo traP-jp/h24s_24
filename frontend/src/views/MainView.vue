@@ -5,9 +5,10 @@ import IntersectionObserver from '@/components/IntersectionObserver.vue';
 import Loader from '@/components/Loader.vue';
 import NewPostSection from '@/components/NewPostSection.vue';
 
-import { getReactions } from '@/features/post';
 import { getPosts, type Post as PostType } from '@/features/api';
+import { getMe, getPosts, type Post as PostType } from '@/features/api';
 import { ref } from 'vue';
+import { convertReactions } from '@/features/reactions';
 
 const posts = ref<PostType[]>([]);
 const isEnd = ref(false);
@@ -60,7 +61,7 @@ fetchMore();
               :content="post.converted_message"
               :date="new Date(post.created_at)"
               :name="post.user_name"
-              :reactions="getReactions(post)"
+              :reactions="convertReactions(post.reactions, post.my_reactions)"
             />
           </router-link>
         </div>

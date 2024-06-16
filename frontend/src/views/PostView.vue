@@ -4,8 +4,8 @@ import { useRoute } from 'vue-router';
 import { getPost, type GetPostResponse } from '@/features/api';
 import { ref } from 'vue';
 import Post from '@/components/Post.vue';
-import { convertReactions } from '@/features/reactions';
 import NewPostSection from '@/components/NewPostSection.vue';
+import { convertReactions } from '@/features/reactions';
 
 const route = useRoute();
 if (route.params.id == undefined) {
