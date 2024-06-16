@@ -72,7 +72,8 @@ func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 	}
 
 	posts := make([]*getTrendResponse, min(postLimit, len(counts)))
-	for i, v := range counts {
+	for i := 0; i < len(posts); i++ {
+		v := counts[i]
 		post, err := tr.pr.GetPost(ctx, v.PostID)
 		if err != nil {
 			log.Printf("failed to get post: %v", err)
