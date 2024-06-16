@@ -89,6 +89,38 @@ func (pr *PostRepository) GetPostsAfter(ctx context.Context, after uuid.UUID, li
 	return domainPosts, nil
 }
 
+func (pr *PostRepository) GetPostsBefore(ctx context.Context, before uuid.UUID, limit int) ([]*domain.Post, error) {
+	var beforePost post
+	err := pr.db.Get(&beforePost, "SELECT * FROM posts WHERE id = ?", before)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("post not found: %w", err)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	var posts []post
+	err = pr.db.Select(&posts, "SELECT * FROM posts WHERE created_at < ? ORDER BY created_at DESC LIMIT ?", beforePost.CreatedAt, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	var domainPosts []*domain.Post
+	for _, p := range posts {
+		domainPosts = append(domainPosts, &domain.Post{
+			ID:               p.ID,
+			UserName:         p.UserName,
+			OriginalMessage:  p.OriginalMessage,
+			ConvertedMessage: p.ConvertedMessage,
+			ParentID:         p.ParentID,
+			RootID:           p.RootID,
+			CreatedAt:        p.CreatedAt,
+		})
+	}
+
+	return domainPosts, nil
+}
+
 func (pr *PostRepository) GetLatestPosts(ctx context.Context, limit int) ([]*domain.Post, error) {
 	var posts []post
 	err := pr.db.Select(&posts, "SELECT * FROM posts ORDER BY created_at DESC LIMIT ?", limit)

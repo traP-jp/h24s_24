@@ -24,7 +24,7 @@ func userNameMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(403, "no username")
 		}
 
-		c.Set(userNameCtxKey, "test-user")
+		c.Set(userNameCtxKey, "test-user2")
 		return next(c)
 	}
 }

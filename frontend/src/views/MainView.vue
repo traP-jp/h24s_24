@@ -5,18 +5,13 @@ import IntersectionObserver from '@/components/IntersectionObserver.vue';
 import Loader from '@/components/Loader.vue';
 import NewPostSection from '@/components/NewPostSection.vue';
 
-import { getMe, getPosts, type Post as PostType } from '@/features/api';
+import { getPosts, type Post as PostType } from '@/features/api';
 import { ref } from 'vue';
 import { convertReactions } from '@/features/reactions';
 
 const posts = ref<PostType[]>([]);
 const isEnd = ref(false);
 const loading = ref(false);
-
-const username = ref('');
-getMe().then((me) => {
-  username.value = me.user_name;
-});
 
 const fetchNew = async () => {
   try {
@@ -56,7 +51,7 @@ fetchMore();
 <template>
   <MainLayout>
     <div class="container">
-      <NewPostSection :name="username" @submit="fetchNew" />
+      <NewPostSection @submit="fetchNew" />
       <div class="posts">
         <div v-for="post in posts" :key="post.id">
           <Post

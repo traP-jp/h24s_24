@@ -4,10 +4,9 @@ import Avatar from './Avatar.vue';
 import Loader from '@/components/Loader.vue';
 
 import { ref, computed } from 'vue';
-import { createPost } from '@/features/api';
+import { createPost, getMe } from '@/features/api';
 
 const props = defineProps<{
-  name: string;
   parentId?: string;
 }>();
 const emit = defineEmits<{
@@ -30,12 +29,17 @@ const post = async () => {
   emit('submit');
   inputContent.value = '';
 };
+
+const username = ref('');
+getMe().then((me) => {
+  username.value = me.user_name;
+});
 </script>
 
 <template>
   <div class="new-post-section">
     <div class="author-icon">
-      <Avatar :name="name" size="48px"></Avatar>
+      <Avatar :name="username" size="48px"></Avatar>
     </div>
     <div class="new-post-input-section">
       <div v-if="loading" class="new-post-input-section-loader">
@@ -48,7 +52,9 @@ const post = async () => {
         :disabled="loading"
       />
       <div class="post-footer">
-        <span :class="{ 'post-charcount-warn': !canPost }">{{ inputContent.length }}/280文字</span>
+        <span :class="{ 'post-charcount-warn': !canPost }" v-if="inputContent.length > 0"
+          >{{ inputContent.length }}/280文字</span
+        >
         <span class="post-button">
           <Button :disabled="!canPost || loading" :onclick="post">
             {{ parentId == undefined ? '投稿' : '返信' }}する</Button

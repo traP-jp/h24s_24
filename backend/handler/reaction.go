@@ -15,6 +15,7 @@ import (
 )
 
 type ReactionRepository interface {
+	DeleteReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) ([]*domain.Reaction, error)
 	GetReactionsByPostID(ctx context.Context, postID uuid.UUID) ([]*domain.Reaction, error)
 	GetReactionsByPostIDs(ctx context.Context, postIDs []uuid.UUID) (map[uuid.UUID][]*domain.Reaction, error)
 	GetReactionCountsGroupedByPostID(ctx context.Context, reactionID *int, since time.Time, until time.Time) ([]*domain.ReactionCount, error)
@@ -29,6 +30,44 @@ type ReactionHandler struct {
 type PostReactionResponse struct {
 	ID    int `json:"id"`
 	Count int `json:"count"`
+}
+
+type deleteReactionResponse struct {
+	ID    int `json:"id"`
+	Count int `json:"count"`
+}
+
+func (rh *ReactionHandler) DeleteReactionHandler(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	postID, err := uuid.Parse(c.Param("postID"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid post id")
+	}
+
+	reactionID, err := strconv.Atoi(c.Param("reactionID"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid reaction id")
+	}
+
+	username, err := getUserName(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get username")
+	}
+
+	reactions, err := rh.rr.DeleteReaction(ctx, postID, reactionID, username)
+	if errors.Is(err, domain.ReactionNotFoundError) {
+		return echo.NewHTTPError(http.StatusBadRequest, "reaction not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to delete reaction")
+	}
+
+	response := make([]*deleteReactionResponse, len(reactions))
+	for i, r := range reactions {
+		response[i] = &deleteReactionResponse{r.ReactionID, r.Count}
+	}
+	return c.JSON(http.StatusOK, response)
 }
 
 func (rh *ReactionHandler) PostReactionHandler(c echo.Context) error {
