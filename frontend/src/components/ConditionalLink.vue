@@ -2,7 +2,7 @@
 defineProps<{
   to: string;
   condition: boolean;
-}>()
+}>();
 </script>
 
 <template>
