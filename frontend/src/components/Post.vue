@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import { effect, ref } from 'vue';
 import { reactionIcons } from '@/features/reactions';
 import { deleteReaction, postReaction } from '@/features/api';
-import twemoji from 'twemoji'
+import twemoji from 'twemoji';
 
 type Reaction = { id: number; count: number; clicked: boolean };
 
@@ -54,8 +54,7 @@ const vTwemoji = {
       className: 'twemoji',
     });
   },
-}
-
+};
 </script>
 
 <template>
@@ -72,9 +71,13 @@ const vTwemoji = {
         {{ content }}
       </div>
       <div class="post-reactions">
-        <button v-for="reaction in copiedReactions" :key="reaction.id" class="post-reaction"
+        <button
+          v-for="reaction in copiedReactions"
+          :key="reaction.id"
+          class="post-reaction"
           :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-          @click="() => toggleReaction(reaction)">
+          @click="() => toggleReaction(reaction)"
+        >
           <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </button>
@@ -87,7 +90,7 @@ const vTwemoji = {
 :global(.twemoji) {
   height: 1em;
   width: 1em;
-  margin: 0 .05em 0 .1em;
+  margin: 0 0.05em 0 0.1em;
   vertical-align: -0.1em;
 }
 
@@ -149,7 +152,7 @@ const vTwemoji = {
           animation: ripple 0.5s ease-out forwards;
         }
 
-        &>* {
+        & > * {
           opacity: 40%;
         }
 
@@ -168,7 +171,7 @@ const vTwemoji = {
         &.clicked {
           background-color: var(--accent-color-10);
 
-          &>* {
+          & > * {
             opacity: 100%;
           }
 
