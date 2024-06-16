@@ -5,7 +5,9 @@ defineProps<{
 </script>
 
 <template>
-  <button type="button" :disabled="disabled"><slot /></button>
+  <button type="button" :disabled="disabled">
+    <slot />
+  </button>
 </template>
 
 <style lang="scss" scoped>
@@ -19,6 +21,7 @@ button {
   text-align: center;
   cursor: pointer;
   background-color: var(--accent-color);
+
   &:disabled {
     background-color: var(--dimmed-border-color);
   }
