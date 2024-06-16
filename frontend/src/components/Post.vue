@@ -69,23 +69,19 @@ const vTwemoji = {
         <span class="post-date">{{ dateText }}</span>
       </div>
       <div class="post-message">
-        {{ content }}
+        <span>
+          {{ content }}
+        </span>
         <span class="original-message">元のメッセージ : {{ originalContent }}</span>
       </div>
       <div class="post-reactions">
-        <button
-          v-for="reaction in copiedReactions"
-          :key="reaction.id"
-          class="post-reaction"
-          :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-          @click="
-            (e) => {
-              toggleReaction(reaction);
-              e.stopPropagation();
-              e.preventDefault();
-            }
-          "
-        >
+        <button v-for="reaction in copiedReactions" :key="reaction.id" class="post-reaction"
+          :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }" @click="(e) => {
+            toggleReaction(reaction);
+            e.stopPropagation();
+            e.preventDefault();
+          }
+            ">
           <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </button>
@@ -136,26 +132,33 @@ const vTwemoji = {
     }
 
     .original-message {
-      width: 80%;
       font-size: 11px;
       position: absolute;
       left: 50%;
       bottom: 0%;
       transform: translateX(0%);
       margin-bottom: 0px;
-      padding: 8px;
+      padding: 8px 16px;
       border-radius: 8px;
-      background-color: #888888;
+      background-color: #000a;
       color: white;
       text-align: center;
       visibility: hidden;
       opacity: 0%;
       z-index: 1;
     }
-    .post-message:hover .original-message {
-      bottom: -80px;
-      visibility: visible;
-      opacity: 80%;
+
+    .post-message {
+      position: relative;
+
+      &:hover .original-message {
+        position: absolute;
+        bottom: -38px;
+        left: 0;
+        height: 30px;
+        visibility: visible;
+        opacity: 100%;
+      }
     }
 
     .post-reactions {
@@ -185,7 +188,7 @@ const vTwemoji = {
           animation: ripple 0.5s ease-out forwards;
         }
 
-        & > * {
+        &>* {
           opacity: 40%;
         }
 
@@ -204,7 +207,7 @@ const vTwemoji = {
         &.clicked {
           background-color: var(--accent-color-10);
 
-          & > * {
+          &>* {
             opacity: 100%;
           }
 
