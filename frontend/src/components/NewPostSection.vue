@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import Button from "./Button.vue"
-import Avatar from "./Avatar.vue"
-import {ref, computed} from "vue"
+import Button from './Button.vue';
+import Avatar from './Avatar.vue';
+import { ref, computed } from 'vue';
 
 defineProps<{
-  name: string,
-}>()
+  name: string;
+}>();
 
-const inputContent = ref('')
+const inputContent = ref('');
 const canPost = computed(() => {
-  return (inputContent.value.length != 0) && (inputContent.value.length <= 280)
-})
-
+  return inputContent.value.length != 0 && inputContent.value.length <= 280;
+});
 </script>
 
 <template>
@@ -20,9 +19,15 @@ const canPost = computed(() => {
       <Avatar :name="name" size="48px"></Avatar>
     </div>
     <div class="new-post-input-section">
-      <textarea type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent"/>
+      <textarea
+        type="text"
+        placeholder="投稿する内容を入力（投稿時に自動で変換されます)"
+        v-model="inputContent"
+      />
       <div class="post-footer">
-        <span :class="!canPost ? 'post-charcount-warn' : undefined">{{ inputContent.length }}/280文字</span>
+        <span :class="!canPost ? 'post-charcount-warn' : undefined"
+          >{{ inputContent.length }}/280文字</span
+        >
         <span class="post-button">
           <Button :disabled="!canPost">投稿する</Button>
         </span>
@@ -70,5 +75,4 @@ const canPost = computed(() => {
     }
   }
 }
-
 </style>
