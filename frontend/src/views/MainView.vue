@@ -6,17 +6,12 @@ import Loader from '@/components/Loader.vue';
 import NewPostSection from '@/components/NewPostSection.vue';
 
 import { getReactions } from '@/features/post';
-import { getMe, getPosts, type Post as PostType } from '@/features/api';
+import { getPosts, type Post as PostType } from '@/features/api';
 import { ref } from 'vue';
 
 const posts = ref<PostType[]>([]);
 const isEnd = ref(false);
 const loading = ref(false);
-
-const username = ref('');
-getMe().then((me) => {
-  username.value = me.user_name;
-});
 
 const fetchNew = async () => {
   try {
@@ -56,7 +51,7 @@ fetchMore();
 <template>
   <MainLayout>
     <div class="container">
-      <NewPostSection :name="username" @submit="fetchNew" />
+      <NewPostSection @submit="fetchNew" />
       <div class="posts">
         <div v-for="post in posts" :key="post.id">
           <router-link :to="`/posts/${post.id}`" class="post-link" v-if="post.root_id === post.id">

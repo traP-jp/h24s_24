@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MainLayout from '@/components/MainLayout.vue';
 import { useRoute } from 'vue-router';
-import { getMe, getPost, type GetPostResponse } from '@/features/api';
+import { getPost, type GetPostResponse } from '@/features/api';
 import { ref } from 'vue';
 import Post from '@/components/Post.vue';
 import { convertReactions } from '@/features/reactions';
@@ -17,11 +17,6 @@ const loadPost = () => {
   getPost(id).then((e) => (postContent.value = e));
 };
 loadPost();
-
-const username = ref('');
-getMe().then((me) => {
-  username.value = me.user_name;
-});
 </script>
 
 <template>
@@ -48,7 +43,7 @@ getMe().then((me) => {
           @react="loadPost"
         />
         <hr />
-        <NewPostSection :name="username" :parent-id="postContent.id" @submit="loadPost" />
+        <NewPostSection :parent-id="postContent.id" @submit="loadPost" />
         <!-- TODO: -->
         <div v-for="child in postContent.children" :key="child.post.id">
           <Post
