@@ -86,6 +86,7 @@ const shareText = computed(() =>
 }
 
 .post-content {
+  flex: 1;
   min-width: 0;
 }
 
