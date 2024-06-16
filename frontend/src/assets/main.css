@@ -24,4 +24,5 @@ body {
   font-style: normal;
 
   overflow-y: scroll;
+  overflow-x: hidden;
 }
