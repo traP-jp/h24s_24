@@ -27,7 +27,11 @@ onBeforeRouteUpdate((to) => {
   <MainLayout>
     <div class="post-view-container">
       <div v-if="postContent != undefined">
-        <div v-for="ancestor in postContent.ancestors" :key="ancestor.post.id">
+        <div
+          v-for="ancestor in postContent.ancestors"
+          :key="ancestor.post.id"
+          class="ancestor-post"
+        >
           <Post
             :content="ancestor.post.converted_message"
             :originalContent="ancestor.post.original_message"
@@ -37,6 +41,7 @@ onBeforeRouteUpdate((to) => {
             :id="ancestor.post.id"
             @react="() => loadPost(useRoute().params.id as string)"
           />
+          <div class="ancestor-bar" />
         </div>
         <Post
           :content="postContent.converted_message"
@@ -65,6 +70,7 @@ onBeforeRouteUpdate((to) => {
             :id="child.post.id"
             @react="() => loadPost(useRoute().params.id as string)"
           />
+          <hr />
         </div>
       </div>
     </div>
@@ -79,5 +85,20 @@ onBeforeRouteUpdate((to) => {
 hr {
   border: none;
   border-top: 1px solid var(--dimmed-border-color);
+}
+
+.ancestor-post {
+  position: relative;
+}
+
+.ancestor-bar {
+  position: absolute;
+  top: 72px;
+  left: 36px;
+  width: 4px;
+  height: calc(100% - 68px);
+  border-radius: 2px;
+  background-color: var(--dimmed-border-color);
+  z-index: -1;
 }
 </style>
