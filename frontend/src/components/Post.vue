@@ -139,8 +139,8 @@ const vTwemoji = {
       width: 80%;
       font-size: 11px;
       position: absolute;
-      left:50%;
-      bottom:0%;
+      left: 50%;
+      bottom: 0%;
       transform: translateX(0%);
       margin-bottom: 0px;
       padding: 8px;
