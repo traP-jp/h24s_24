@@ -88,19 +88,6 @@ hr {
   flex-direction: column;
 }
 
-.post-link {
-  text-decoration: none;
-  color: inherit;
-
-  &::after {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 1px;
-    background-color: var(--dimmed-border-color);
-  }
-}
-
 .loader-container {
   display: flex;
   justify-content: center;

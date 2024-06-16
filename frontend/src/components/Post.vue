@@ -140,14 +140,6 @@ const vTwemoji = {
 .post-link {
   text-decoration: none;
   color: inherit;
-
-  &::after {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 1px;
-    background-color: var(--dimmed-border-color);
-  }
 }
 
 :global(.twemoji) {

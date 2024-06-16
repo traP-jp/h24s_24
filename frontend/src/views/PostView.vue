@@ -38,7 +38,6 @@ onBeforeRouteUpdate((to) => {
             @react="() => loadPost(useRoute().params.id as string)"
           />
         </div>
-        <hr />
         <Post
           :content="postContent.converted_message"
           :originalContent="postContent.original_message"
@@ -55,7 +54,7 @@ onBeforeRouteUpdate((to) => {
           :parent-id="postContent.id"
           @submit="() => loadPost(useRoute().params.id as string)"
         />
-        <!-- TODO: -->
+        <hr />
         <div v-for="child in postContent.children" :key="child.post.id">
           <Post
             :content="child.post.converted_message"
