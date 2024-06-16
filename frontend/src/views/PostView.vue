@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import MainLayout from '@/components/MainLayout.vue';
-import { onBeforeRouteUpdate, type RouteLocationNormalizedLoaded, useRoute } from 'vue-router';
+import { onBeforeRouteUpdate, useRoute } from 'vue-router';
 import { getPost, type GetPostResponse } from '@/features/api';
-import { computed, onMounted, onRenderTriggered, ref, watch } from 'vue';
+import { ref } from 'vue';
 import Post from '@/components/Post.vue';
 import NewPostSection from '@/components/NewPostSection.vue';
 import { convertReactions } from '@/features/reactions';
@@ -18,7 +18,7 @@ const loadPost = (id: string) => {
 };
 loadPost(useRoute().params.id as string);
 
-onBeforeRouteUpdate((to, from, next) => {
+onBeforeRouteUpdate((to) => {
   loadPost(to.params.id as string);
 });
 </script>
@@ -30,6 +30,7 @@ onBeforeRouteUpdate((to, from, next) => {
         <div v-for="ancestor in postContent.ancestors" :key="ancestor.post.id">
           <Post
             :content="ancestor.post.converted_message"
+            :originalContent="ancestor.post.original_message"
             :date="new Date(ancestor.post.created_at)"
             :name="ancestor.post.user_name"
             :reactions="convertReactions(ancestor.post.reactions, ancestor.post.my_reactions)"
@@ -40,10 +41,12 @@ onBeforeRouteUpdate((to, from, next) => {
         <hr />
         <Post
           :content="postContent.converted_message"
+          :originalContent="postContent.original_message"
           :date="new Date(postContent.created_at)"
           :name="postContent.user_name"
           :reactions="convertReactions(postContent.reactions, postContent.my_reactions)"
           :id="postContent.id"
+          detail
           @react="() => loadPost(useRoute().params.id as string)"
         />
         <hr />
@@ -56,6 +59,7 @@ onBeforeRouteUpdate((to, from, next) => {
         <div v-for="child in postContent.children" :key="child.post.id">
           <Post
             :content="child.post.converted_message"
+            :originalContent="child.post.original_message"
             :date="new Date(child.post.created_at)"
             :name="child.post.user_name"
             :reactions="convertReactions(child.post.reactions, child.post.my_reactions)"
@@ -71,5 +75,10 @@ onBeforeRouteUpdate((to, from, next) => {
 <style scoped>
 .post-view-container {
   padding-bottom: 50vh;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--dimmed-border-color);
 }
 </style>

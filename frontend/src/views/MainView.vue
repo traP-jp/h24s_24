@@ -59,6 +59,7 @@ fetchMore();
             :content="post.converted_message"
             :date="new Date(post.created_at)"
             :name="post.user_name"
+            :originalContent="post.original_message"
             :reactions="convertReactions(post.reactions, post.my_reactions)"
           />
         </div>

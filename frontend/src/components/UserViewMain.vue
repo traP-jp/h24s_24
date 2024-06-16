@@ -48,6 +48,7 @@ const { data, loading } = useFetcher(() => getUser(props.username));
           :name="post.user_name"
           :date="new Date(post.created_at)"
           :content="post.converted_message"
+          :original-content="post.original_message"
           :reactions="convertReactions(post.reactions, post.my_reactions)"
         />
       </div>
@@ -62,7 +63,6 @@ const { data, loading } = useFetcher(() => getUser(props.username));
 .user-view {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .user-view-header {
