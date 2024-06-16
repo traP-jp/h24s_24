@@ -43,14 +43,9 @@ fetchNew();
     <div class="container">
       <div class="posts">
         <div v-for="post in posts" :key="post.id">
-          <router-link :to="`/posts/${post.id}`" class="post-link">
-            <Post
-              :id="post.id"
-              :content="post.converted_message"
-              :date="new Date(post.created_at)"
-              :name="post.user_name"
-              :reactions="getReactions(post)"
-            />
+          <router-link :to="`/posts/${post.id}`" class="post-link" v-if="post.root_id === post.id">
+            <Post :id="post.id" :content="post.converted_message" :date="new Date(post.created_at)"
+              :name="post.user_name" :reactions="getReactions(post)" />
           </router-link>
         </div>
       </div>
@@ -62,7 +57,7 @@ fetchNew();
   </MainLayout>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .container {
   padding-bottom: 50vh;
 }
