@@ -11,8 +11,15 @@ const value = ref<number>(0);
 <template>
   <div class="icon-area">
     <div v-for="(reaction, id) in reactionIcons" class="icon-part" :key="id">
-      <input class="radio-button" :id="`radio${id}`" type="radio" name="icons" :value="id" v-model="value"
-        @change="emits('change', value)" />
+      <input
+        class="radio-button"
+        :id="`radio${id}`"
+        type="radio"
+        name="icons"
+        :value="id"
+        v-model="value"
+        @change="emits('change', value)"
+      />
       <label :for="`radio${id}`">{{ reaction }}️</label>
     </div>
   </div>
@@ -46,7 +53,7 @@ label {
   width: 100%;
 }
 
-.radio-button:checked+label::after {
+.radio-button:checked + label::after {
   content: '';
   display: block;
   position: absolute;
