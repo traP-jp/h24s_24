@@ -30,7 +30,7 @@ const post = () => {
     <div class="new-post-input-section">
       <textarea
         type="text"
-        :placeholder="`${parentId == undefined  ? '投稿' : '返信'}する内容を入力（投稿時に自動で変換されます)`"
+        :placeholder="`${parentId == undefined ? '投稿' : '返信'}する内容を入力（投稿時に自動で変換されます)`"
         v-model="inputContent"
       />
       <div class="post-footer">
@@ -38,7 +38,7 @@ const post = () => {
           >{{ inputContent.length }}/280文字</span
         >
         <span class="post-button">
-          <Button :disabled="!canPost"> {{ parentId == undefined  ? '投稿' : '返信' }}する</Button>
+          <Button :disabled="!canPost"> {{ parentId == undefined ? '投稿' : '返信' }}する</Button>
         </span>
       </div>
     </div>
