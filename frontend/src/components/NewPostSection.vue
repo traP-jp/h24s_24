@@ -1,17 +1,29 @@
 <script setup lang="ts">
-import Button from "./Button.vue"
-import Avatar from "./Avatar.vue"
-import {ref, computed} from "vue"
+import Button from './Button.vue';
+import Avatar from './Avatar.vue';
+import { ref, computed } from 'vue';
+import { createPost } from '@/features/api';
 
-defineProps<{
-  name: string,
-}>()
+const props = defineProps<{
+  name: string;
+  parentId?: string;
+}>();
+const emit = defineEmits<{
+  (e: 'submit'): void;
+}>();
 
-const inputContent = ref('')
+const inputContent = ref('');
 const canPost = computed(() => {
-  return (inputContent.value.length != 0) && (inputContent.value.length <= 280)
-})
-
+  return inputContent.value.length != 0 && inputContent.value.length <= 280;
+});
+const post = () => {
+  createPost({
+    message: inputContent.value,
+    parent_id: props.parentId,
+  });
+  emit('submit');
+  inputContent.value = '';
+};
 </script>
 
 <template>
@@ -20,11 +32,17 @@ const canPost = computed(() => {
       <Avatar :name="name" size="48px"></Avatar>
     </div>
     <div class="new-post-input-section">
-      <textarea type="text" placeholder="投稿する内容を入力（投稿時に自動で変換されます)" v-model="inputContent"/>
+      <textarea
+        type="text"
+        :placeholder="`${parentId == undefined ? '投稿' : '返信'}する内容を入力（投稿時に自動で変換されます)`"
+        v-model="inputContent"
+      />
       <div class="post-footer">
-        <span :class="!canPost ? 'post-charcount-warn' : undefined">{{ inputContent.length }}/280文字</span>
+        <span :class="{ 'post-charcount-warn': !canPost }">{{ inputContent.length }}/280文字</span>
         <span class="post-button">
-          <Button :disabled="!canPost">投稿する</Button>
+          <Button :disabled="!canPost" :onclick="post">
+            {{ parentId == undefined ? '投稿' : '返信' }}する</Button
+          >
         </span>
       </div>
     </div>
@@ -70,5 +88,4 @@ const canPost = computed(() => {
     }
   }
 }
-
 </style>

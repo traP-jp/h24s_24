@@ -18,3 +18,8 @@ type UserReaction struct {
 	PostID     uuid.UUID
 	CreatedAt  time.Time
 }
+
+type ReactionCount struct {
+	PostID uuid.UUID
+	Count  int
+}

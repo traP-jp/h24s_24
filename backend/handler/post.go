@@ -7,7 +7,9 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -24,9 +26,15 @@ type PostRepository interface {
 	GetChildrenCountByParentIDs(ctx context.Context, parentIDs []uuid.UUID) (map[uuid.UUID]int, error)
 }
 
+type PostConverter interface {
+	ConvertMessage(ctx context.Context, originalMessage string) (string, error)
+}
+
 type PostHandler struct {
 	PostRepository     PostRepository
 	ReactionRepository ReactionRepository
+
+	pc PostConverter
 }
 
 type postPostsRequest struct {
@@ -66,10 +74,22 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 		parentID = postID
 	}
 
-	convertedMessage := post.Message
+	if utf8.RuneCountInString(post.Message) > 280 {
+		return echo.NewHTTPError(http.StatusBadRequest, "message too long")
+	}
+	originalMessage := strings.TrimSpace(post.Message)
+	if originalMessage == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "message empty")
+	}
+
+	convertedMessage, err := ph.pc.ConvertMessage(ctx, originalMessage)
+	if err != nil {
+		log.Printf("failed to convert message: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to convert message")
+	}
 
 	var rootID uuid.UUID
-	rootID, err = ph.PostRepository.CreatePost(ctx, postID, post.Message, convertedMessage, username, parentID)
+	rootID, err = ph.PostRepository.CreatePost(ctx, postID, originalMessage, convertedMessage, username, parentID)
 
 	if err != nil {
 		log.Printf("failed to post: %v\n", err)
@@ -80,10 +100,10 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, postPostsResponse{
-		OriginalMessage:  post.Message,
+		OriginalMessage:  originalMessage,
 		ConvertedMessage: convertedMessage,
 		PostID:           postID,
-		CreatedAt:        time.Now(),
+		CreatedAt:        time.Now().Local(),
 		ParentID:         parentID,
 		RootID:           rootID,
 	})
@@ -91,13 +111,13 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 
 type GetPostsResponse struct {
 	ID               uuid.UUID       `json:"id"`
-	UserName         string          `json:"userName"`
-	OriginalMessage  string          `json:"originalMessage"`
-	ConvertedMessage string          `json:"convertedMessage"`
-	RootID           uuid.UUID       `json:"rootID"`
+	UserName         string          `json:"user_name"`
+	OriginalMessage  string          `json:"original_message"`
+	ConvertedMessage string          `json:"converted_message"`
+	RootID           uuid.UUID       `json:"root_id"`
 	Reactions        []reactionCount `json:"reactions"`
-	CreatedAt        time.Time       `json:"createdAt"`
-	MyReactions      []int           `json:"myReactions"`
+	CreatedAt        time.Time       `json:"created_at"`
+	MyReactions      []int           `json:"my_reactions"`
 }
 
 type reactionCount struct {
@@ -183,7 +203,7 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 			OriginalMessage:  post.OriginalMessage,
 			ConvertedMessage: post.ConvertedMessage,
 			RootID:           post.RootID,
-			CreatedAt:        post.CreatedAt,
+			CreatedAt:        post.CreatedAt.Local(),
 		}
 		reactions := make([]reactionCount, 0, len(postReactionsMap[post.ID]))
 		for _, reaction := range postReactionsMap[post.ID] {
@@ -290,7 +310,7 @@ func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 		ConvertedMessage: post.ConvertedMessage,
 		Reactions:        resReactions,
 		MyReactions:      myReactionIDs,
-		CreatedAt:        post.CreatedAt,
+		CreatedAt:        post.CreatedAt.Local(),
 	}
 
 	children, err := ph.PostRepository.GetChildren(ctx, post.ID)
@@ -350,7 +370,7 @@ func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 					OriginalMessage:  post.OriginalMessage,
 					ConvertedMessage: post.ConvertedMessage,
 					UserName:         post.UserName,
-					CreatedAt:        post.CreatedAt,
+					CreatedAt:        post.CreatedAt.Local(),
 					MyReactions:      myReactionIDs,
 				},
 				ChildrenCount: postIDChildrenCountMap[post.ID],
