@@ -127,7 +127,7 @@ func (uh *UserHandler) GetUserHandler(c echo.Context) error {
 }
 
 type getMeResponse struct {
-	Username string `js:"user_name"`
+	Username string `json:"user_name"`
 }
 
 func (uh *UserHandler) GetMeHandler(c echo.Context) error {
