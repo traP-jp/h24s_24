@@ -21,13 +21,18 @@ const loading = ref(false);
 
 const post = async () => {
   loading.value = true;
-  await createPost({
-    message: inputContent.value,
-    parent_id: props.parentId,
-  });
-  loading.value = false;
-  emit('submit');
-  inputContent.value = '';
+  try {
+    await createPost({
+      message: inputContent.value,
+      parent_id: props.parentId,
+    });
+    emit('submit');
+    inputContent.value = '';
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loading.value = false;
+  }
 };
 
 const username = ref('');
@@ -45,20 +50,14 @@ getMe().then((me) => {
       <div v-if="loading" class="new-post-input-section-loader">
         <Loader />
       </div>
-      <textarea
-        type="text"
-        :placeholder="`${parentId == undefined ? '投稿' : '返信'}する内容を入力（投稿時に自動で変換されます)`"
-        v-model="inputContent"
-        :disabled="loading"
-      />
+      <textarea type="text" :placeholder="`${parentId == undefined ? '投稿' : '返信'}する内容を入力（投稿時に自動で変換されます)`"
+        v-model="inputContent" :disabled="loading" />
       <div class="post-footer">
-        <span :class="{ 'post-charcount-warn': !canPost }" v-if="inputContent.length > 0"
-          >{{ inputContent.length }}/280文字</span
-        >
+        <span :class="{ 'post-charcount-warn': !canPost }" v-if="inputContent.length > 0">{{ inputContent.length
+          }}/280文字</span>
         <span class="post-button">
           <Button :disabled="!canPost || loading" :onclick="post">
-            {{ parentId == undefined ? '投稿' : '返信' }}する</Button
-          >
+            {{ parentId == undefined ? '投稿' : '返信' }}する</Button>
         </span>
       </div>
     </div>
