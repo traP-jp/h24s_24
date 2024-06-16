@@ -2,14 +2,11 @@
 import Avatar from '@/components/Avatar.vue';
 import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
-import { computed, effect, ref } from 'vue';
-import { reactionIcons } from '@/features/reactions';
+import { computed, ref } from 'vue';
 import ConditionalLink from '@/components/ConditionalLink.vue';
-import { deleteReaction, postReaction } from '@/features/api';
 import { Icon } from '@iconify/vue';
-import twemoji from 'twemoji';
-
-type Reaction = { id: number; count: number; clicked: boolean };
+import type { Reaction } from '@/components/PostReactions.vue';
+import PostReactions from '@/components/PostReactions.vue';
 
 const props = defineProps<{
   id: string;
@@ -20,15 +17,9 @@ const props = defineProps<{
   detail?: boolean;
   reactions: Reaction[];
 }>();
-const emits = defineEmits<{
+const emit = defineEmits<{
   (e: 'react'): void;
 }>();
-
-const copiedReactions = ref(props.reactions);
-effect(() => {
-  copiedReactions.value = props.reactions;
-});
-const newReaction = ref<number>(-1);
 
 function getDateText() {
   return moment(props.date).fromNow();
@@ -36,35 +27,11 @@ function getDateText() {
 
 const dateText = ref(getDateText());
 
-async function toggleReaction(reaction: Reaction) {
-  const r = copiedReactions.value.find((r) => r.id == reaction.id)!;
-  if (reaction.clicked) {
-    r.clicked = false;
-    r.count--;
-    await deleteReaction(props.id, reaction.id);
-    emits('react');
-  } else {
-    r.clicked = true;
-    r.count++;
-    newReaction.value = reaction.id;
-    await postReaction(props.id, reaction.id);
-    emits('react');
-  }
-}
-
 const shareText = computed(() =>
   encodeURIComponent(
     `:@${props.name}: < ${props.content}\n\n[:fire: 発火村の投稿より :fire:](https://hakka-mura.trap.show/posts/${props.id})`,
   ),
 );
-
-const vTwemoji = {
-  mounted: (el: HTMLElement) => {
-    el.innerHTML = twemoji.parse(el.innerHTML, {
-      className: 'twemoji',
-    });
-  },
-};
 </script>
 
 <template>
@@ -86,24 +53,7 @@ const vTwemoji = {
           <div v-if="detail" class="detail-original-message">{{ originalContent }}</div>
         </div>
         <div class="foot-action-container">
-          <div class="post-reactions">
-            <button
-              v-for="reaction in copiedReactions"
-              :key="reaction.id"
-              class="post-reaction"
-              :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-              @click="
-                (e) => {
-                  toggleReaction(reaction);
-                  e.stopPropagation();
-                  e.preventDefault();
-                }
-              "
-            >
-              <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
-              <span class="post-reaction-count">{{ reaction.count }}</span>
-            </button>
-          </div>
+          <PostReactions :postId="id" :reactions="reactions" @react="emit('react')" />
           <div class="share-traQ">
             <a
               :href="`https://q.trap.jp/share-target?text=${shareText}`"
@@ -125,176 +75,99 @@ const vTwemoji = {
   color: inherit;
 }
 
-:global(.twemoji) {
-  height: 1em;
-  width: 1em;
-  margin: 0 0.05em 0 0.1em;
-  vertical-align: -0.1em;
-}
-
 .post {
   display: flex;
   padding: 16px;
   color: var(--primary-text-color);
+}
 
-  &-author-icon {
-    padding-right: 8px;
+.post-author-icon {
+  padding-right: 8px;
+}
+
+.post-content {
+  min-width: 0;
+}
+
+.post-header {
+  margin-bottom: 8px;
+
+  .post-author {
+    margin-right: 6px;
+    font-weight: bold;
+    text-decoration: none;
+    color: inherit;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 
-  &-content {
-    min-width: 0;
-
-    .post-header {
-      margin-bottom: 8px;
-
-      .post-author {
-        margin-right: 6px;
-        font-weight: bold;
-        text-decoration: none;
-        color: inherit;
-
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-
-      .post-date {
-        color: var(--dimmed-text-color);
-      }
-    }
-
-    .post-message-container {
-      position: relative;
-    }
-
-    .post-message {
-      max-width: 100%;
-      overflow-wrap: break-word;
-      margin-bottom: 8px;
-      position: relative;
-    }
-
-    .original-message {
-      font-size: 11px;
-      position: absolute;
-      padding: 8px 16px;
-      border-radius: 8px;
-      background-color: #000a;
-      color: white;
-      visibility: hidden;
-      opacity: 0%;
-      transition: all 0.2s ease-out;
-      z-index: 1;
-      bottom: 12px;
-      left: 0;
-      transform: translateY(100%);
-    }
-
-    .post-message:hover + .original-message {
-      visibility: visible;
-      opacity: 100%;
-      bottom: -4px;
-    }
-
-    .detail-original-message {
-      color: var(--dimmed-text-color);
-      margin-bottom: 8px;
-    }
-
-    .foot-action-container {
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .post-reactions {
-      display: flex;
-      gap: 8px;
-
-      .post-reaction {
-        background-color: inherit;
-        border: none;
-        border-radius: 8px;
-        display: flex;
-        padding: 4px 12px 4px 4px;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        position: relative;
-        transition: background-color 0.2s;
-
-        &.ripple::before {
-          content: '';
-          position: absolute;
-          width: 100%;
-          aspect-ratio: 1/1;
-          background-color: var(--accent-color);
-          border-radius: 50%;
-          z-index: -1;
-          animation: ripple 0.5s ease-out forwards;
-        }
-
-        & > * {
-          opacity: 40%;
-        }
-
-        &:hover {
-          background-color: #0001;
-        }
-
-        .post-reaction-icon {
-          padding: 0 4px;
-        }
-
-        .post-reaction-count {
-          color: var(--dimmed-text-color);
-        }
-
-        &.clicked {
-          background-color: var(--accent-color-10);
-
-          & > * {
-            opacity: 100%;
-          }
-
-          .post-reaction-count {
-            color: var(--accent-color);
-            font-weight: bold;
-          }
-        }
-      }
-    }
-
-    .share-traQ {
-      padding-right: 16px;
-
-      a {
-        display: inline-grid;
-        place-items: center;
-        width: 32px;
-        height: 32px;
-        font-size: 1.2rem;
-        border-radius: 50%;
-        transition: all 0.2s;
-        color: var(--dimmed-text-color);
-
-        &:hover {
-          background-color: #0001;
-          color: var(--primary-text-color);
-        }
-      }
-    }
+  .post-date {
+    color: var(--dimmed-text-color);
   }
 }
 
-@keyframes ripple {
-  from {
-    opacity: 0.2;
-    transform: scale(0.5);
-  }
+.post-message-container {
+  position: relative;
+}
 
-  to {
-    opacity: 0;
-    transform: scale(1.5);
+.post-message {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.original-message {
+  font-size: 11px;
+  position: absolute;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background-color: #000a;
+  color: white;
+  visibility: hidden;
+  opacity: 0%;
+  transition: all 0.2s ease-out;
+  z-index: 1;
+  bottom: 12px;
+  left: 0;
+  transform: translateY(100%);
+}
+
+.post-message:hover + .original-message {
+  visibility: visible;
+  opacity: 100%;
+  bottom: -4px;
+}
+
+.detail-original-message {
+  color: var(--dimmed-text-color);
+  margin-bottom: 8px;
+}
+
+.foot-action-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.share-traQ {
+  padding-right: 16px;
+
+  a {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    transition: all 0.2s;
+    color: var(--dimmed-text-color);
+
+    &:hover {
+      background-color: #0001;
+      color: var(--primary-text-color);
+    }
   }
 }
 </style>

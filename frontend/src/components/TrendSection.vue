@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { reactionIcons } from '@/features/reactions';
-import twemoji from 'twemoji';
+import { vTwemojiObj } from '@/features/vTwemoji';
 import { ref } from 'vue';
 
 const emits = defineEmits<{
@@ -8,13 +8,7 @@ const emits = defineEmits<{
 }>();
 const value = ref<number>(0);
 
-const vTwemoji = {
-  mounted: (el: HTMLElement) => {
-    el.innerHTML = twemoji.parse(el.innerHTML, {
-      className: 'twemoji',
-    });
-  },
-};
+const vTwemoji = vTwemojiObj;
 </script>
 
 <template>
