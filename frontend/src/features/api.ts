@@ -145,13 +145,13 @@ export const getPosts = async ({
   limit,
   after,
   repost,
-}: GetPostsParameters): Promise<CreatePostResponse[]> => {
+}: GetPostsParameters): Promise<GetPostsResponse> => {
   return fetchApi('GET', '/posts', {
     parameters: { limit: limit?.toString() ?? '30', after, repost: repost?.toString() ?? 'false' },
   });
 };
 
-type GetPostResponse = Expand<PostDetail>;
+export type GetPostResponse = Expand<PostDetail>;
 export const getPost = async (postId: string): Promise<GetPostResponse> => {
   return fetchApi('GET', `/posts/${postId}`);
 };

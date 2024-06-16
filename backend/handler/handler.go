@@ -22,13 +22,8 @@ func Start() {
 	}
 
 	pr := repository.NewPostRepository(db)
-	if err != nil {
-		log.Fatalf("failed to get post repository: %v\n", err)
-	}
 	rr := repository.NewReactionRepository(db)
-	if err != nil {
-		log.Fatalf("failed to get reaction repository: %v\n", err)
-	}
+	ur := repository.NewUserRepository(db)
 
 	// ローカルのときはモックを使う
 	var cvt PostConverter
@@ -45,6 +40,7 @@ func Start() {
 	ph := &PostHandler{PostRepository: pr, ReactionRepository: rr, pc: cvt}
 	rh := &ReactionHandler{rr: rr}
 	th := &TrendHandler{rr: rr, pr: pr}
+	uh := &UserHandler{rr: rr, ur: ur}
 
 	e.Use(middleware.Logger(), middleware.Recover())
 
@@ -59,6 +55,9 @@ func Start() {
 	api.POST("/posts/:postID/reactions/:reactionID", rh.PostReactionHandler)
 
 	api.GET("/trend", th.GetTrendHandler)
+
+	api.GET("/users/:userName", uh.GetUserHandler)
+	api.GET("/me", uh.GetMeHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
