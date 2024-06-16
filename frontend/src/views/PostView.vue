@@ -13,7 +13,11 @@ if (route.params.id == undefined) {
 }
 const id = route.params.id as string;
 const postContent = ref<GetPostResponse>();
-getPost(id).then((e) => (postContent.value = e));
+const loadPost = () => {
+  console.log('aaa');
+  getPost(id).then((e) => (postContent.value = e));
+};
+loadPost();
 
 const convertReactions = (src: Reaction[], my: number[]) => {
   const dist: { id: number; count: number; clicked: boolean }[] = [];
@@ -47,6 +51,7 @@ const convertReactions = (src: Reaction[], my: number[]) => {
           :name="ancestor.post.user_name"
           :reactions="convertReactions(ancestor.post.reactions, ancestor.post.my_reactions)"
           :id="ancestor.post.id"
+          @react="loadPost"
         />
       </div>
       <hr />
@@ -56,6 +61,7 @@ const convertReactions = (src: Reaction[], my: number[]) => {
         :name="postContent.user_name"
         :reactions="convertReactions(postContent.reactions, postContent.my_reactions)"
         :id="postContent.id"
+        @react="loadPost"
       />
       <hr />
       <NewPostSection name="" :parent-id="postContent.id" />
@@ -67,6 +73,7 @@ const convertReactions = (src: Reaction[], my: number[]) => {
           :name="child.post.user_name"
           :reactions="convertReactions(child.post.reactions, child.post.my_reactions)"
           :id="child.post.id"
+          @react="loadPost"
         />
       </div>
     </div>

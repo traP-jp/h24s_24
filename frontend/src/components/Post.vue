@@ -4,6 +4,7 @@ import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
 import { ref } from 'vue';
 import { reactionIcons } from '@/features/reactions';
+import { deleteReaction, postReaction } from '@/features/api';
 
 type Reaction = { id: number; count: number; clicked: boolean };
 
@@ -15,7 +16,7 @@ const props = defineProps<{
   reactions: Reaction[];
 }>();
 const emits = defineEmits<{
-  (e: 'setClicked', value: [number, boolean]): void;
+  (e: 'react'): void;
 }>();
 
 function getDateText() {
@@ -25,17 +26,12 @@ function getDateText() {
 const dateText = ref(getDateText());
 
 async function toggleReaction(reaction: Reaction) {
-  const endpoint = '/api';
   if (reaction.clicked) {
-    await fetch(`${endpoint}/posts/${props.id}/reactions/${reaction.id}`, {
-      method: 'DELETE',
-    });
-    emits('setClicked', [reaction.id, false]);
+    await deleteReaction(props.id, reaction.id);
+    emits('react');
   } else {
-    await fetch(`${endpoint}/posts/${props.id}/reactions/${reaction.id}`, {
-      method: 'POST',
-    });
-    reaction.clicked = true;
+    await postReaction(props.id, reaction.id);
+    emits('react');
   }
 }
 </script>
