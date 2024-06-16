@@ -52,6 +52,7 @@ func Start() {
 	api.GET("/posts", ph.GetPostsHandler)
 	api.GET("/posts/:postID", ph.GetPostHandler)
 
+	api.DELETE("/posts/:postID/reactions/:reactionID", rh.DeleteReactionHandler)
 	api.POST("/posts/:postID/reactions/:reactionID", rh.PostReactionHandler)
 
 	api.GET("/trend", th.GetTrendHandler)
