@@ -19,6 +19,7 @@ import (
 type PostRepository interface {
 	CreatePost(ctx context.Context, postID uuid.UUID, originalMessage string, convertedMessage string, username string, parentID uuid.UUID) (uuid.UUID, error)
 	GetPostsAfter(ctx context.Context, after uuid.UUID, limit int) ([]*domain.Post, error)
+	GetPostsBefore(ctx context.Context, before uuid.UUID, limit int) ([]*domain.Post, error)
 	GetLatestPosts(ctx context.Context, limit int) ([]*domain.Post, error)
 	GetPost(ctx context.Context, postID uuid.UUID) (*domain.Post, error)
 	GetChildren(ctx context.Context, parentID uuid.UUID) ([]*domain.Post, error)
@@ -149,6 +150,21 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 		}
 	}
 
+	useBefore := false
+	beforeStr := c.QueryParam("before")
+	var before uuid.UUID
+	if beforeStr != "" {
+		useBefore = true
+		before, err = uuid.Parse(beforeStr)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, "invalid param 'before'")
+		}
+	}
+
+	if useAfter && useBefore {
+		return c.JSON(http.StatusBadRequest, "cannot use both 'after' and 'before'")
+	}
+
 	var limit int
 	limitStr := c.QueryParam("limit")
 	if limitStr != "" {
@@ -165,6 +181,15 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 		posts, err = ph.PostRepository.GetPostsAfter(ctx, after, limit)
 		if errors.Is(err, sql.ErrNoRows) {
 			return c.JSON(http.StatusNotFound, "after post not found")
+		}
+		if err != nil {
+			log.Printf("failed to get posts: %v\n", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get posts")
+		}
+	} else if useBefore {
+		posts, err = ph.PostRepository.GetPostsBefore(ctx, before, limit)
+		if errors.Is(err, sql.ErrNoRows) {
+			return c.JSON(http.StatusNotFound, "before post not found")
 		}
 		if err != nil {
 			log.Printf("failed to get posts: %v\n", err)
