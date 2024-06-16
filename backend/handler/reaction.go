@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -61,7 +60,7 @@ func (rh *ReactionHandler) DeleteReactionHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "reaction not found")
 	}
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("failed to delete reaction: %v", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to delete reaction")
 	}
 
 	response := make([]*deleteReactionResponse, len(reactions))
