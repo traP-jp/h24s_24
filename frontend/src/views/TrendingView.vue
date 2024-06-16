@@ -16,23 +16,21 @@ loadPost();
 
 <template>
   <MainLayout>
-    <TrendSection
-      @change="
-        (id) => {
-          target = id;
-          loadPost();
-        }
-      "
-    />
+    <TrendSection @change="(id) => {
+        target = id;
+        loadPost();
+      }
+      " />
     <div v-for="post in timeline" :key="post.id">
-      <Post
-        :content="post.converted_message"
-        :date="new Date(post.created_at)"
-        :name="post.user_name"
-        :reactions="convertReactions(post.reactions, post.my_reactions)"
-        :id="post.id"
-        @react="loadPost"
-      />
+      <Post class="trending-post" :content="post.converted_message" :date="new Date(post.created_at)"
+        :name="post.user_name" :reactions="convertReactions(post.reactions, post.my_reactions)" :id="post.id"
+        @react="loadPost" />
     </div>
   </MainLayout>
 </template>
+
+<style lang="scss" scoped>
+.trending-post {
+  border-bottom: 1px solid var(--dimmed-border-color);
+}
+</style>
