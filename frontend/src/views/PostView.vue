@@ -43,7 +43,7 @@ loadPost();
           @react="loadPost"
         />
         <hr />
-        <NewPostSection name="" :parent-id="postContent.id" @submit="loadPost" />
+        <NewPostSection :parent-id="postContent.id" @submit="loadPost" />
         <!-- TODO: -->
         <div v-for="child in postContent.children" :key="child.post.id">
           <Post
