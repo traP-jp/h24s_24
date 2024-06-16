@@ -54,6 +54,7 @@ func Start() {
 	api.POST("/posts/:postID/reactions/:reactionID", rh.PostReactionHandler)
 
 	api.GET("/users/:userName", uh.GetUserHandler)
+	api.GET("/me", uh.GetMeHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
