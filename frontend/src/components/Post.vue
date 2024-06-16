@@ -2,7 +2,7 @@
 import Avatar from '@/components/Avatar.vue';
 import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
-import { ref } from 'vue';
+import { effect, ref } from 'vue';
 import { reactionIcons } from '@/features/reactions';
 import { deleteReaction, postReaction } from '@/features/api';
 
@@ -19,6 +19,12 @@ const emits = defineEmits<{
   (e: 'react'): void;
 }>();
 
+const copiedReactions = ref(props.reactions);
+effect(() => {
+  copiedReactions.value = props.reactions;
+});
+const newReaction = ref<number>(-1);
+
 function getDateText() {
   return moment(props.date).fromNow();
 }
@@ -26,10 +32,16 @@ function getDateText() {
 const dateText = ref(getDateText());
 
 async function toggleReaction(reaction: Reaction) {
+  const r = copiedReactions.value.find((r) => r.id == reaction.id)!;
   if (reaction.clicked) {
+    r.clicked = false;
+    r.count--;
     await deleteReaction(props.id, reaction.id);
     emits('react');
   } else {
+    r.clicked = true;
+    r.count++;
+    newReaction.value = reaction.id;
     await postReaction(props.id, reaction.id);
     emits('react');
   }
@@ -38,12 +50,12 @@ async function toggleReaction(reaction: Reaction) {
 
 <template>
   <div class="post">
-    <router-link :to="`/users/${name}`" class="post-author-icon">
+    <div class="post-author-icon">
       <Avatar size="48px" :name="name" />
-    </router-link>
+    </div>
     <div class="post-content">
       <div class="post-header">
-        <router-link :to="`/users/${name}`" class="post-author">@{{ name }}</router-link>
+        <span class="post-author">@{{ name }}</span>
         <span class="post-date">{{ dateText }}</span>
       </div>
       <div class="post-message">
@@ -51,10 +63,10 @@ async function toggleReaction(reaction: Reaction) {
       </div>
       <div class="post-reactions">
         <button
-          v-for="reaction in reactions"
+          v-for="reaction in copiedReactions"
           :key="reaction.id"
           class="post-reaction"
-          :class="{ clicked: reaction.clicked }"
+          :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
           @click="() => toggleReaction(reaction)"
         >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
@@ -84,12 +96,6 @@ async function toggleReaction(reaction: Reaction) {
       .post-author {
         margin-right: 6px;
         font-weight: bold;
-        text-decoration: none;
-        color: inherit;
-
-        &:hover {
-          text-decoration: underline;
-        }
       }
 
       .post-date {
@@ -116,6 +122,19 @@ async function toggleReaction(reaction: Reaction) {
         font-size: 1rem;
         display: flex;
         align-items: center;
+        position: relative;
+        transition: background-color 0.2s;
+
+        &.ripple::before {
+          content: '';
+          position: absolute;
+          width: 100%;
+          aspect-ratio: 1/1;
+          background-color: var(--accent-color);
+          border-radius: 50%;
+          z-index: -1;
+          animation: ripple 0.5s ease-out forwards;
+        }
 
         & > * {
           opacity: 40%;
@@ -145,6 +164,18 @@ async function toggleReaction(reaction: Reaction) {
         }
       }
     }
+  }
+}
+
+@keyframes ripple {
+  from {
+    opacity: 0.2;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.5);
   }
 }
 </style>
