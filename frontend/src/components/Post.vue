@@ -77,13 +77,19 @@ const vTwemoji = {
         <div v-if="detail" class="detail-original-message">{{ originalContent }}</div>
       </div>
       <div class="post-reactions">
-        <button v-for="reaction in copiedReactions" :key="reaction.id" class="post-reaction"
-          :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }" @click="(e) => {
-            toggleReaction(reaction);
-            e.stopPropagation();
-            e.preventDefault();
-          }
-            ">
+        <button
+          v-for="reaction in copiedReactions"
+          :key="reaction.id"
+          class="post-reaction"
+          :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
+          @click="
+            (e) => {
+              toggleReaction(reaction);
+              e.stopPropagation();
+              e.preventDefault();
+            }
+          "
+        >
           <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </button>
@@ -154,7 +160,7 @@ const vTwemoji = {
       transform: translateY(-16px);
     }
 
-    .post-message:hover+.original-message {
+    .post-message:hover + .original-message {
       visibility: visible;
       opacity: 100%;
       transform: translateY(0);
@@ -192,7 +198,7 @@ const vTwemoji = {
           animation: ripple 0.5s ease-out forwards;
         }
 
-        &>* {
+        & > * {
           opacity: 40%;
         }
 
@@ -211,7 +217,7 @@ const vTwemoji = {
         &.clicked {
           background-color: var(--accent-color-10);
 
-          &>* {
+          & > * {
             opacity: 100%;
           }
 

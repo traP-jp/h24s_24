@@ -41,9 +41,16 @@ const { data, loading } = useFetcher(() => getUser(props.username));
         </div>
       </div>
       <div class="user-view-posts">
-        <Post v-for="post in data?.posts" :id="post.id" :key="post.id" :name="post.user_name"
-          :date="new Date(post.created_at)" :content="post.converted_message" :original-content="post.original_message"
-          :reactions="convertReactions(post.reactions, post.my_reactions)" />
+        <Post
+          v-for="post in data?.posts"
+          :id="post.id"
+          :key="post.id"
+          :name="post.user_name"
+          :date="new Date(post.created_at)"
+          :content="post.converted_message"
+          :original-content="post.original_message"
+          :reactions="convertReactions(post.reactions, post.my_reactions)"
+        />
       </div>
     </div>
     <div v-if="loading" class="user-view-loader">
