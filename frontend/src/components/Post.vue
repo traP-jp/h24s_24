@@ -5,11 +5,17 @@ import moment from 'moment-timezone';
 import { ref } from 'vue';
 import { reactionIcons } from '@/features/reactions';
 
+type Reaction = { id: number; count: number; clicked: boolean };
+
 const props = defineProps<{
+  id: string;
   name: string;
   date: Date;
   content: string;
-  reactions: { id: number; count: number; clicked: boolean }[];
+  reactions: Reaction[];
+}>();
+const emits = defineEmits<{
+  (e: 'setClicked', value: [number, boolean]): void;
 }>();
 
 function getDateText() {
@@ -17,6 +23,21 @@ function getDateText() {
 }
 
 const dateText = ref(getDateText());
+
+async function toggleReaction(reaction: Reaction) {
+  const endpoint = '/api';
+  if (reaction.clicked) {
+    await fetch(`${endpoint}/posts/${props.id}/reactions/${reaction.id}`, {
+      method: 'DELETE',
+    });
+    emits('setClicked', [reaction.id, false]);
+  } else {
+    await fetch(`${endpoint}/posts/${props.id}/reactions/${reaction.id}`, {
+      method: 'POST',
+    });
+    reaction.clicked = true;
+  }
+}
 </script>
 
 <template>
@@ -38,6 +59,7 @@ const dateText = ref(getDateText());
           :key="reaction.id"
           class="post-reaction"
           :class="reaction.clicked ? ['clicked'] : undefined"
+          @click="() => toggleReaction(reaction)"
         >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>

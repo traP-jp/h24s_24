@@ -7,11 +7,19 @@ defineProps<{
   name: string;
   parentId?: string;
 }>();
+const emit = defineEmits<{
+  (e: 'submit'): void;
+}>();
 
 const inputContent = ref('');
 const canPost = computed(() => {
   return inputContent.value.length != 0 && inputContent.value.length <= 280;
 });
+const post = () => {
+  // TODO: {inputContent.value, props.parent_id}で/postsにPOST
+  inputContent.value = '';
+  emit('submit');
+};
 </script>
 
 <template>
