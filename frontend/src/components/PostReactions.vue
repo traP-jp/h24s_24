@@ -62,6 +62,7 @@ const vTwemoji = vTwemojiObj;
 <style lang="scss" scoped>
 .post-reactions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
