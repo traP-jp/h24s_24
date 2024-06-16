@@ -5,12 +5,21 @@ import { ref, computed } from 'vue';
 
 defineProps<{
   name: string;
+  parent_id: string | undefined;
+}>();
+const emit = defineEmits<{
+  (e: 'submit'): void;
 }>();
 
 const inputContent = ref('');
 const canPost = computed(() => {
   return inputContent.value.length != 0 && inputContent.value.length <= 280;
 });
+const post = () => {
+  // TODO: {inputContent.value, props.parent_id}で/postsにPOST
+  inputContent.value = '';
+  emit('submit');
+};
 </script>
 
 <template>
@@ -29,7 +38,7 @@ const canPost = computed(() => {
           >{{ inputContent.length }}/280文字</span
         >
         <span class="post-button">
-          <Button :disabled="!canPost">投稿する</Button>
+          <Button :disabled="!canPost" :onclick="post">投稿する</Button>
         </span>
       </div>
     </div>
