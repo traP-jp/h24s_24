@@ -76,7 +76,13 @@ const vTwemoji = {
           :key="reaction.id"
           class="post-reaction"
           :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-          @click="() => toggleReaction(reaction)"
+          @click="
+            (e) => {
+              toggleReaction(reaction);
+              e.stopPropagation();
+              e.preventDefault();
+            }
+          "
         >
           <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
