@@ -103,7 +103,7 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 		OriginalMessage:  originalMessage,
 		ConvertedMessage: convertedMessage,
 		PostID:           postID,
-		CreatedAt:        time.Now(),
+		CreatedAt:        time.Now().Local(),
 		ParentID:         parentID,
 		RootID:           rootID,
 	})
@@ -203,7 +203,7 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 			OriginalMessage:  post.OriginalMessage,
 			ConvertedMessage: post.ConvertedMessage,
 			RootID:           post.RootID,
-			CreatedAt:        post.CreatedAt,
+			CreatedAt:        post.CreatedAt.Local(),
 		}
 		reactions := make([]reactionCount, 0, len(postReactionsMap[post.ID]))
 		for _, reaction := range postReactionsMap[post.ID] {
@@ -310,7 +310,7 @@ func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 		ConvertedMessage: post.ConvertedMessage,
 		Reactions:        resReactions,
 		MyReactions:      myReactionIDs,
-		CreatedAt:        post.CreatedAt,
+		CreatedAt:        post.CreatedAt.Local(),
 	}
 
 	children, err := ph.PostRepository.GetChildren(ctx, post.ID)
@@ -370,7 +370,7 @@ func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 					OriginalMessage:  post.OriginalMessage,
 					ConvertedMessage: post.ConvertedMessage,
 					UserName:         post.UserName,
-					CreatedAt:        post.CreatedAt,
+					CreatedAt:        post.CreatedAt.Local(),
 					MyReactions:      myReactionIDs,
 				},
 				ChildrenCount: postIDChildrenCountMap[post.ID],

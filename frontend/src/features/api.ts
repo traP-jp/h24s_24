@@ -151,7 +151,7 @@ export const getPosts = async ({
   });
 };
 
-type GetPostResponse = Expand<PostDetail>;
+export type GetPostResponse = Expand<PostDetail>;
 export const getPost = async (postId: string): Promise<GetPostResponse> => {
   return fetchApi('GET', `/posts/${postId}`);
 };

@@ -132,7 +132,7 @@ func (pr *PostRepository) GetPost(ctx context.Context, postID uuid.UUID) (*domai
 
 func (pr *PostRepository) GetChildren(ctx context.Context, parentID uuid.UUID) ([]*domain.Post, error) {
 	var posts []post
-	err := pr.db.Select(&posts, "SELECT * FROM posts WHERE parent_id = ? ORDER BY created_at", parentID)
+	err := pr.db.Select(&posts, "SELECT * FROM posts WHERE parent_id = ? AND id != ? ORDER BY created_at", parentID, parentID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get children: %w", err)
 	}

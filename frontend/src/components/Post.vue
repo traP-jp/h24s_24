@@ -2,46 +2,76 @@
 import Avatar from '@/components/Avatar.vue';
 import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
-import { ref } from 'vue';
+import { effect, ref } from 'vue';
 import { reactionIcons } from '@/features/reactions';
+import { deleteReaction, postReaction } from '@/features/api';
+
+type Reaction = { id: number; count: number; clicked: boolean };
 
 const props = defineProps<{
+  id: string;
   name: string;
   date: Date;
   content: string;
-  reactions: { id: number; count: number; clicked: boolean }[];
+  reactions: Reaction[];
 }>();
+const emits = defineEmits<{
+  (e: 'react'): void;
+}>();
+
+const copiedReactions = ref(props.reactions);
+effect(() => {
+  copiedReactions.value = props.reactions;
+});
+const newReaction = ref<number>(-1);
 
 function getDateText() {
   return moment(props.date).fromNow();
 }
 
 const dateText = ref(getDateText());
+
+async function toggleReaction(reaction: Reaction) {
+  const r = copiedReactions.value.find((r) => r.id == reaction.id)!;
+  if (reaction.clicked) {
+    r.clicked = false;
+    r.count--;
+    await deleteReaction(props.id, reaction.id);
+    emits('react');
+  } else {
+    r.clicked = true;
+    r.count++;
+    newReaction.value = reaction.id;
+    await postReaction(props.id, reaction.id);
+    emits('react');
+  }
+}
 </script>
 
 <template>
   <div class="post">
-    <router-link :to="`/users/${name}`" class="post-author-icon">
+    <div class="post-author-icon">
       <Avatar size="48px" :name="name" />
-    </router-link>
+    </div>
     <div class="post-content">
       <div class="post-header">
-        <router-link :to="`/users/${name}`" class="post-author">@{{ name }}</router-link>
+        <span class="post-author">@{{ name }}</span>
         <span class="post-date">{{ dateText }}</span>
       </div>
       <div class="post-message">
         {{ content }}
       </div>
       <div class="post-reactions">
-        <div
-          v-for="reaction in reactions"
+        <button
+          v-for="reaction in copiedReactions"
           :key="reaction.id"
           class="post-reaction"
-          :class="reaction.clicked ? ['clicked'] : undefined"
+          :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
+          @click="() => toggleReaction(reaction)"
         >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
-        </div>
+        </button>
       </div>
     </div>
   </div>
@@ -66,12 +96,6 @@ const dateText = ref(getDateText());
       .post-author {
         margin-right: 6px;
         font-weight: bold;
-        text-decoration: none;
-        color: inherit;
-
-        &:hover {
-          text-decoration: underline;
-        }
       }
 
       .post-date {
@@ -87,13 +111,41 @@ const dateText = ref(getDateText());
 
     .post-reactions {
       display: flex;
+      gap: 8px;
 
       .post-reaction {
-        margin-right: 8px;
-        opacity: 40%;
+        background-color: inherit;
+        border: none;
+        border-radius: 8px;
+        display: flex;
+        padding: 4px 12px 4px 4px;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        position: relative;
+        transition: background-color 0.2s;
+
+        &.ripple::before {
+          content: '';
+          position: absolute;
+          width: 100%;
+          aspect-ratio: 1/1;
+          background-color: var(--accent-color);
+          border-radius: 50%;
+          z-index: -1;
+          animation: ripple 0.5s ease-out forwards;
+        }
+
+        & > * {
+          opacity: 40%;
+        }
+
+        &:hover {
+          background-color: #0001;
+        }
 
         .post-reaction-icon {
-          padding: 4px;
+          padding: 0 4px;
         }
 
         .post-reaction-count {
@@ -101,7 +153,9 @@ const dateText = ref(getDateText());
         }
 
         &.clicked {
-          opacity: 100%;
+          & > * {
+            opacity: 100%;
+          }
 
           .post-reaction-count {
             color: var(--accent-color);
@@ -110,6 +164,18 @@ const dateText = ref(getDateText());
         }
       }
     }
+  }
+}
+
+@keyframes ripple {
+  from {
+    opacity: 0.2;
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.5);
   }
 }
 </style>
