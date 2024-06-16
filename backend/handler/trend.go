@@ -30,11 +30,12 @@ type getTrendResponse struct {
 	Reactions        []*reaction `json:"reactions"`
 	RootID           uuid.UUID   `json:"root_id"`
 	CreatedAt        time.Time   `json:"created_at"`
+	MyReactions      []int       `json:"my_reactions"`
 }
 
 func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 	until := time.Now()
-	since := until.Add(-time.Minute * 30)
+	since := until.Add(-time.Hour * 30)
 	postLimit := 30
 
 	ctx := c.Request().Context()
@@ -79,6 +80,16 @@ func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 			reactionsSlice[i] = &reaction{v.ReactionID, v.Count}
 		}
 
+		myReactions, err := tr.rr.GetReactionsByUserName(ctx, post.ID, post.UserName)
+		if err != nil {
+			log.Printf("failed to get my reactions: %v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get my reaction")
+		}
+		myReactionsSlice := make([]int, len(myReactions))
+		for i, userReaction := range myReactions {
+			myReactionsSlice[i] = userReaction.ReactionID
+		}
+
 		posts[i] = &getTrendResponse{
 			PostID:           post.ID,
 			Username:         post.UserName,
@@ -87,6 +98,7 @@ func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 			Reactions:        reactionsSlice,
 			RootID:           post.RootID,
 			CreatedAt:        post.CreatedAt.Local(),
+			MyReactions:      myReactionsSlice,
 		}
 	}
 	return c.JSON(http.StatusOK, posts)
