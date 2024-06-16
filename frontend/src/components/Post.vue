@@ -4,12 +4,19 @@ import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
 import { ref } from 'vue';
 import { reactionIcons } from '@/features/reactions';
+import { deleteReaction, postReaction } from '@/features/api';
+
+type Reaction = { id: number; count: number; clicked: boolean };
 
 const props = defineProps<{
+  id: string;
   name: string;
   date: Date;
   content: string;
-  reactions: { id: number; count: number; clicked: boolean }[];
+  reactions: Reaction[];
+}>();
+const emits = defineEmits<{
+  (e: 'react'): void;
 }>();
 
 function getDateText() {
@@ -17,6 +24,16 @@ function getDateText() {
 }
 
 const dateText = ref(getDateText());
+
+async function toggleReaction(reaction: Reaction) {
+  if (reaction.clicked) {
+    await deleteReaction(props.id, reaction.id);
+    emits('react');
+  } else {
+    await postReaction(props.id, reaction.id);
+    emits('react');
+  }
+}
 </script>
 
 <template>
@@ -33,15 +50,16 @@ const dateText = ref(getDateText());
         {{ content }}
       </div>
       <div class="post-reactions">
-        <div
+        <button
           v-for="reaction in reactions"
           :key="reaction.id"
           class="post-reaction"
-          :class="reaction.clicked ? ['clicked'] : undefined"
+          :class="{ clicked: reaction.clicked }"
+          @click="() => toggleReaction(reaction)"
         >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
-        </div>
+        </button>
       </div>
     </div>
   </div>
@@ -87,13 +105,28 @@ const dateText = ref(getDateText());
 
     .post-reactions {
       display: flex;
+      gap: 8px;
 
       .post-reaction {
-        margin-right: 8px;
-        opacity: 40%;
+        background-color: inherit;
+        border: none;
+        border-radius: 8px;
+        display: flex;
+        padding: 4px 12px 4px 4px;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+
+        & > * {
+          opacity: 40%;
+        }
+
+        &:hover {
+          background-color: #0001;
+        }
 
         .post-reaction-icon {
-          padding: 4px;
+          padding: 0 4px;
         }
 
         .post-reaction-count {
@@ -101,7 +134,9 @@ const dateText = ref(getDateText());
         }
 
         &.clicked {
-          opacity: 100%;
+          & > * {
+            opacity: 100%;
+          }
 
           .post-reaction-count {
             color: var(--accent-color);
