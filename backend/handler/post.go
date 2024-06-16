@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -73,11 +74,12 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 		parentID = postID
 	}
 
-	if post.Message == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "message empty")
-	}
 	if utf8.RuneCountInString(post.Message) > 280 {
 		return echo.NewHTTPError(http.StatusBadRequest, "message too long")
+	}
+	originalMessage := strings.TrimSpace(post.Message)
+	if originalMessage == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "message empty")
 	}
 
 	convertedMessage, err := ph.pc.ConvertMessage(ctx, post.Message)
@@ -87,7 +89,7 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 	}
 
 	var rootID uuid.UUID
-	rootID, err = ph.PostRepository.CreatePost(ctx, postID, post.Message, convertedMessage, username, parentID)
+	rootID, err = ph.PostRepository.CreatePost(ctx, postID, originalMessage, convertedMessage, username, parentID)
 
 	if err != nil {
 		log.Printf("failed to post: %v\n", err)
@@ -98,7 +100,7 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, postPostsResponse{
-		OriginalMessage:  post.Message,
+		OriginalMessage:  originalMessage,
 		ConvertedMessage: convertedMessage,
 		PostID:           postID,
 		CreatedAt:        time.Now(),
