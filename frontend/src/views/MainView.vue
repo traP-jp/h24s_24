@@ -20,7 +20,7 @@ getMe().then((me) => {
 
 const fetchNew = async () => {
   try {
-    const retrieved = await getPosts({ after: posts.value[0].id });
+    const retrieved = await getPosts({ after: posts.value[0]?.id });
     posts.value.unshift(...retrieved);
     if (retrieved.length === 30) {
       await fetchNew();
@@ -36,7 +36,7 @@ const fetchMore = async () => {
 
   try {
     loading.value = true;
-    const retrieved = await getPosts({ before: posts.value.slice(-1)[0].id });
+    const retrieved = await getPosts({ before: posts.value.slice(-1)[0]?.id });
     if (retrieved.length === 0) {
       isEnd.value = true;
       return;
