@@ -1,1 +1,1 @@
-export const reactionIcons = ['❤️', '🔥', '💧', '😢', '🤔'];
+export const reactionIcons = ['🩷', '🔥', '💧', '😢', '🤔'];
