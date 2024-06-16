@@ -43,6 +43,7 @@ const { data, loading } = useFetcher(() => getUser(props.username));
       <div class="user-view-posts">
         <Post
           v-for="post in data?.posts"
+          :id="post.id"
           :key="post.id"
           :name="post.user_name"
           :date="new Date(post.created_at)"

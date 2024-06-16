@@ -205,5 +205,5 @@ export type GetUserResponse = {
   posts: Post[];
 };
 export const getUser = async (userName: string): Promise<GetUserResponse> => {
-  return fetchApi('GET', `/user/${userName}`);
+  return fetchApi('GET', `/users/${userName}`);
 };
