@@ -41,17 +41,17 @@ const { data, loading } = useFetcher(() => getUser(props.username));
         </div>
       </div>
       <div class="user-view-posts">
-        <Post
-          v-for="post in data?.posts"
-          :id="post.id"
-          :key="post.id"
-          :name="post.user_name"
-          :date="new Date(post.created_at)"
-          :content="post.converted_message"
-          :original-content="post.original_message"
-          :reactions="convertReactions(post.reactions, post.my_reactions)"
-        />
-        <hr />
+        <div v-for="post in data?.posts" :key="post.id">
+          <Post
+            :id="post.id"
+            :name="post.user_name"
+            :date="new Date(post.created_at)"
+            :content="post.converted_message"
+            :original-content="post.original_message"
+            :reactions="convertReactions(post.reactions, post.my_reactions)"
+          />
+          <hr />
+        </div>
       </div>
     </div>
     <div v-if="loading" class="user-view-loader">
@@ -61,6 +61,11 @@ const { data, loading } = useFetcher(() => getUser(props.username));
 </template>
 
 <style lang="scss" scoped>
+hr {
+  border: none;
+  border-top: 1px solid var(--dimmed-border-color);
+}
+
 .user-view {
   display: flex;
   flex-direction: column;
