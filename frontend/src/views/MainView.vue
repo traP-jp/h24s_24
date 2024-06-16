@@ -3,31 +3,46 @@ import MainLayout from '@/components/MainLayout.vue';
 import Post from '@/components/Post.vue';
 import IntersectionObserver from '@/components/IntersectionObserver.vue';
 import Loader from '@/components/Loader.vue';
+import NewPostSection from '@/components/NewPostSection.vue';
+
 import { getReactions } from '@/features/post';
-import { getPosts, type Post as PostType } from '@/features/api';
+import { getMe, getPosts, type Post as PostType } from '@/features/api';
 import { ref } from 'vue';
 
 const posts = ref<PostType[]>([]);
-const oldestId = ref<string | undefined>(undefined);
 const isEnd = ref(false);
 const loading = ref(false);
 
+const username = ref('');
+getMe().then((me) => {
+  username.value = me.user_name;
+});
+
 const fetchNew = async () => {
+  try {
+    const retrieved = await getPosts({ after: posts.value[0].id });
+    posts.value.unshift(...retrieved);
+    if (retrieved.length === 30) {
+      await fetchNew();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const fetchMore = async () => {
   if (isEnd.value) return;
   if (loading.value) return;
 
   try {
     loading.value = true;
-    const retrieved = await getPosts({ after: oldestId.value });
+    const retrieved = await getPosts({ before: posts.value.slice(-1)[0].id });
     if (retrieved.length === 0) {
       isEnd.value = true;
       return;
     }
 
     posts.value.push(...retrieved);
-    console.log(posts.value);
-
-    oldestId.value = retrieved.slice(-1)[0].id;
   } catch (err) {
     console.error(err);
   } finally {
@@ -35,12 +50,13 @@ const fetchNew = async () => {
   }
 };
 
-fetchNew();
+fetchMore();
 </script>
 
 <template>
   <MainLayout>
     <div class="container">
+      <NewPostSection :name="username" @submit="fetchNew" />
       <div class="posts">
         <div v-for="post in posts" :key="post.id">
           <router-link :to="`/posts/${post.id}`" class="post-link" v-if="post.root_id === post.id">
@@ -49,7 +65,7 @@ fetchNew();
           </router-link>
         </div>
       </div>
-      <IntersectionObserver @intersect="fetchNew" />
+      <IntersectionObserver @intersect="fetchMore" />
       <div class="loader-container" v-if="!isEnd">
         <Loader />
       </div>

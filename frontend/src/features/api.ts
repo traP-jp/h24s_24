@@ -123,7 +123,11 @@ export type GetPostsParameters = {
    */
   limit?: number;
   /**
-   * このIDの投稿より後に投稿されたものを取得する。指定されない場合は、最新のものからlimit件取得する
+   * このIDの投稿より前に投稿されたものを取得する。指定されない場合は、最新のものからlimit件取得する (afterと一緒には指定できない)
+   */
+  before?: string;
+  /**
+   * このIDの投稿より後に投稿されたものを取得する。指定されない場合は、最新のものからlimit件取得する  (beforeと一緒には指定できない)
    */
   after?: string;
   /**
@@ -143,11 +147,17 @@ export type GetPostsResponse = Array<
 >;
 export const getPosts = async ({
   limit,
+  before,
   after,
   repost,
 }: GetPostsParameters): Promise<GetPostsResponse> => {
   return fetchApi('GET', '/posts', {
-    parameters: { limit: limit?.toString() ?? '30', after, repost: repost?.toString() ?? 'false' },
+    parameters: {
+      limit: limit?.toString() ?? '30',
+      before,
+      after,
+      repost: repost?.toString() ?? 'false',
+    },
   });
 };
 
@@ -184,7 +194,7 @@ export const getTrend = async (reactionId: number): Promise<GetTrendResponse> =>
 
 export type GetUserResponse = {
   /**
-   * ユーザーID
+   * ユーザー名
    */
   user_name: string;
   /**
@@ -206,4 +216,14 @@ export type GetUserResponse = {
 };
 export const getUser = async (userName: string): Promise<GetUserResponse> => {
   return fetchApi('GET', `/users/${userName}`);
+};
+
+export type GetMeResponse = {
+  /**
+   * ユーザー名
+   */
+  user_name: string;
+};
+export const getMe = async (): Promise<GetMeResponse> => {
+  return fetchApi('GET', '/me');
 };
