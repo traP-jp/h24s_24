@@ -62,9 +62,13 @@ async function toggleReaction(reaction: Reaction) {
         {{ content }}
       </div>
       <div class="post-reactions">
-        <button v-for="reaction in copiedReactions" :key="reaction.id" class="post-reaction"
+        <button
+          v-for="reaction in copiedReactions"
+          :key="reaction.id"
+          class="post-reaction"
           :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-          @click="() => toggleReaction(reaction)">
+          @click="() => toggleReaction(reaction)"
+        >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </button>
@@ -122,7 +126,7 @@ async function toggleReaction(reaction: Reaction) {
         transition: background-color 0.2s;
 
         &.ripple::before {
-          content: "";
+          content: '';
           position: absolute;
           width: 100%;
           aspect-ratio: 1/1;
@@ -132,7 +136,7 @@ async function toggleReaction(reaction: Reaction) {
           animation: ripple 0.5s ease-out forwards;
         }
 
-        &>* {
+        & > * {
           opacity: 40%;
         }
 
@@ -149,7 +153,7 @@ async function toggleReaction(reaction: Reaction) {
         }
 
         &.clicked {
-          &>* {
+          & > * {
             opacity: 100%;
           }
 
