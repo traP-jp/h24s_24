@@ -157,22 +157,28 @@ export const getPost = async (postId: string): Promise<GetPostResponse> => {
 };
 
 export type PostReactionResponse = Reaction[];
-export const postReaction = async (postId: string, reactionId: number) => {
+export const postReaction = async (
+  postId: string,
+  reactionId: number,
+): Promise<PostReactionResponse> => {
   return fetchApi('POST', `/posts/${postId}/reactions/${reactionId}`);
 };
 
 export type DeleteReactionResponse = Reaction[];
-export const deleteReaction = async (postId: string, reactionId: number) => {
+export const deleteReaction = async (
+  postId: string,
+  reactionId: number,
+): Promise<DeleteReactionResponse> => {
   return fetchApi('DELETE', `/posts/${postId}/reactions/${reactionId}`);
 };
 
 export type GetReactionsResponse = ReactionDetail[];
-export const getReactions = async (postId: string) => {
+export const getReactions = async (postId: string): Promise<GetReactionsResponse> => {
   return fetchApi('GET', `/posts/${postId}/reactions`);
 };
 
 export type GetTrendResponse = Array<Post>;
-export const getTrend = async (reactionId: number) => {
+export const getTrend = async (reactionId: number): Promise<GetTrendResponse> => {
   return fetchApi('GET', '/trend', { parameters: { reaction_id: reactionId.toString() } });
 };
 
@@ -198,6 +204,6 @@ export type GetUserResponse = {
    */
   posts: Post[];
 };
-export const getUser = async (userName: string) => {
+export const getUser = async (userName: string): Promise<GetUserResponse> => {
   return fetchApi('GET', `/user/${userName}`);
 };

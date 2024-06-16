@@ -3,6 +3,7 @@ import MainLayout from '@/components/MainLayout.vue';
 import Post from '@/components/Post.vue';
 import IntersectionObserver from '@/components/IntersectionObserver.vue';
 import Loader from '@/components/Loader.vue';
+import { getReactions } from '@/features/post';
 import { getPosts, type Post as PostType } from '@/features/api';
 import { ref } from 'vue';
 
@@ -35,9 +36,6 @@ const fetchNew = async () => {
 };
 
 fetchNew();
-
-const getReactions = (post: PostType) =>
-  post.reactions.map((r) => ({ ...r, clicked: post.my_reactions.includes(r.id) }));
 </script>
 
 <template>
@@ -46,12 +44,8 @@ const getReactions = (post: PostType) =>
       <div class="posts">
         <div v-for="post in posts" :key="post.id">
           <router-link :to="`/posts/${post.id}`" class="post-link">
-            <Post
-              :content="post.converted_message"
-              :date="new Date(post.created_at)"
-              :name="post.user_name"
-              :reactions="getReactions(post)"
-            />
+            <Post :content="post.converted_message" :date="new Date(post.created_at)" :name="post.user_name"
+              :reactions="getReactions(post)" />
           </router-link>
         </div>
       </div>
