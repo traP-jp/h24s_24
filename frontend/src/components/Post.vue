@@ -4,6 +4,7 @@ import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
 import { effect, ref } from 'vue';
 import { reactionIcons } from '@/features/reactions';
+import ConditionalLink from '@/components/ConditionalLink.vue';
 import { deleteReaction, postReaction } from '@/features/api';
 import twemoji from 'twemoji';
 
@@ -60,7 +61,7 @@ const vTwemoji = {
 </script>
 
 <template>
-  <router-link v-if="!detail" :to="`/posts/${id}/`" class="post-link">
+  <ConditionalLink :condition="!detail" :to="`/posts/${id}/`" class="post-link">
     <div class="post">
       <router-link :to="`/users/${name}`" class="post-author-icon">
         <Avatar size="48px" :name="name" />
@@ -78,62 +79,20 @@ const vTwemoji = {
           <div v-if="detail" class="detail-original-message">{{ originalContent }}</div>
         </div>
         <div class="post-reactions">
-          <button
-            v-for="reaction in copiedReactions"
-            :key="reaction.id"
-            class="post-reaction"
-            :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-            @click="
-              (e) => {
-                toggleReaction(reaction);
-                e.stopPropagation();
-                e.preventDefault();
-              }
-            "
-          >
+          <button v-for="reaction in copiedReactions" :key="reaction.id" class="post-reaction"
+            :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }" @click="(e) => {
+              toggleReaction(reaction);
+              e.stopPropagation();
+              e.preventDefault();
+            }
+              ">
             <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
             <span class="post-reaction-count">{{ reaction.count }}</span>
           </button>
         </div>
       </div>
     </div>
-  </router-link>
-  <div class="post" v-if="detail">
-    <router-link :to="`/users/${name}`" class="post-author-icon">
-      <Avatar size="48px" :name="name" />
-    </router-link>
-    <div class="post-content">
-      <div class="post-header">
-        <router-link :to="`/users/${name}`" class="post-author">@{{ name }}</router-link>
-        <span class="post-date">{{ dateText }}</span>
-      </div>
-      <div class="post-message-container">
-        <div class="post-message">
-          {{ content }}
-        </div>
-        <div v-if="!detail" class="original-message">{{ originalContent }}</div>
-        <div v-if="detail" class="detail-original-message">{{ originalContent }}</div>
-      </div>
-      <div class="post-reactions">
-        <button
-          v-for="reaction in copiedReactions"
-          :key="reaction.id"
-          class="post-reaction"
-          :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-          @click="
-            (e) => {
-              toggleReaction(reaction);
-              e.stopPropagation();
-              e.preventDefault();
-            }
-          "
-        >
-          <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
-          <span class="post-reaction-count">{{ reaction.count }}</span>
-        </button>
-      </div>
-    </div>
-  </div>
+  </ConditionalLink>
 </template>
 
 <style lang="scss" scoped>
@@ -208,7 +167,7 @@ const vTwemoji = {
       transform: translateY(-16px);
     }
 
-    .post-message:hover + .original-message {
+    .post-message:hover+.original-message {
       visibility: visible;
       opacity: 100%;
       transform: translateY(0);
@@ -246,7 +205,7 @@ const vTwemoji = {
           animation: ripple 0.5s ease-out forwards;
         }
 
-        & > * {
+        &>* {
           opacity: 40%;
         }
 
@@ -265,7 +224,7 @@ const vTwemoji = {
         &.clicked {
           background-color: var(--accent-color-10);
 
-          & > * {
+          &>* {
             opacity: 100%;
           }
 
