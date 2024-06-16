@@ -134,10 +134,6 @@ const vTwemoji = {
     .original-message {
       font-size: 11px;
       position: absolute;
-      left: 50%;
-      bottom: 0%;
-      transform: translateX(0%);
-      margin-bottom: 0px;
       padding: 8px 16px;
       border-radius: 8px;
       background-color: #000a;
@@ -145,17 +141,17 @@ const vTwemoji = {
       text-align: center;
       visibility: hidden;
       opacity: 0%;
+      transition: visibility 0.2s, opacity 0.2s;
       z-index: 1;
+      bottom: -38px;
+      left: 0;
+      height: 30px;
     }
 
     .post-message {
       position: relative;
 
       &:hover .original-message {
-        position: absolute;
-        bottom: -38px;
-        left: 0;
-        height: 30px;
         visibility: visible;
         opacity: 100%;
       }
