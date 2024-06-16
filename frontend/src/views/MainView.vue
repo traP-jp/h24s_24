@@ -15,7 +15,6 @@ const fetchNew = async () => {
   if (isEnd.value) return;
   if (loading.value) return;
 
-
   try {
     loading.value = true;
     const retrieved = await getPosts({ after: oldestId.value });
@@ -39,7 +38,6 @@ fetchNew();
 
 const getReactions = (post: PostType) =>
   post.reactions.map((r) => ({ ...r, clicked: post.my_reactions.includes(r.id) }));
-
 </script>
 
 <template>
@@ -48,8 +46,12 @@ const getReactions = (post: PostType) =>
       <div class="posts">
         <div v-for="post in posts" :key="post.id">
           <router-link :to="`/posts/${post.id}`" class="post-link">
-            <Post :content="post.converted_message" :date="new Date(post.created_at)" :name="post.user_name"
-              :reactions="getReactions(post)" />
+            <Post
+              :content="post.converted_message"
+              :date="new Date(post.created_at)"
+              :name="post.user_name"
+              :reactions="getReactions(post)"
+            />
           </router-link>
         </div>
       </div>

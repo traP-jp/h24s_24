@@ -3,13 +3,13 @@ import { ref, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps<{
   onIntersect: (isIntersecting: boolean) => void;
-}>()
+}>();
 
 const target = ref(null);
 const isIntersecting = ref(false);
 
 const callback: IntersectionObserverCallback = (entries) => {
-  entries.forEach(entry => {
+  entries.forEach((entry) => {
     isIntersecting.value = entry.isIntersecting;
     console.log(isIntersecting.value);
 
@@ -23,7 +23,7 @@ onMounted(() => {
   const observer = new IntersectionObserver(callback, {
     root: null, // viewportをルートとする
     rootMargin: '0px',
-    threshold: 0.1 // 10% が画面内に入ったらコールバックを呼ぶ
+    threshold: 0.1, // 10% が画面内に入ったらコールバックを呼ぶ
   });
 
   if (target.value) {

@@ -33,8 +33,12 @@ const dateText = ref(getDateText());
         {{ content }}
       </div>
       <div class="post-reactions">
-        <div v-for="reaction in reactions" :key="reaction.id" class="post-reaction"
-          :class="reaction.clicked ? ['clicked'] : undefined">
+        <div
+          v-for="reaction in reactions"
+          :key="reaction.id"
+          class="post-reaction"
+          :class="reaction.clicked ? ['clicked'] : undefined"
+        >
           <span class="post-reaction-icon">{{ reactionIcons[reaction.id] }}</span>
           <span class="post-reaction-count">{{ reaction.count }}</span>
         </div>
