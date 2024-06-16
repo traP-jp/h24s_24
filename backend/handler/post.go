@@ -101,13 +101,13 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 
 type GetPostsResponse struct {
 	ID               uuid.UUID       `json:"id"`
-	UserName         string          `json:"userName"`
-	OriginalMessage  string          `json:"originalMessage"`
-	ConvertedMessage string          `json:"convertedMessage"`
-	RootID           uuid.UUID       `json:"rootID"`
+	UserName         string          `json:"user_name"`
+	OriginalMessage  string          `json:"original_message"`
+	ConvertedMessage string          `json:"converted_message"`
+	RootID           uuid.UUID       `json:"root_id"`
 	Reactions        []reactionCount `json:"reactions"`
-	CreatedAt        time.Time       `json:"createdAt"`
-	MyReactions      []int           `json:"myReactions"`
+	CreatedAt        time.Time       `json:"created_at"`
+	MyReactions      []int           `json:"my_reactions"`
 }
 
 type reactionCount struct {
