@@ -27,12 +27,12 @@ loadPost();
           <Post :content="ancestor.post.converted_message" :originalContent="ancestor.post.original_message"
             :date="new Date(ancestor.post.created_at)" :name="ancestor.post.user_name"
             :reactions="convertReactions(ancestor.post.reactions, ancestor.post.my_reactions)" :id="ancestor.post.id"
-            detail @react="loadPost" />
+            @react="loadPost" />
         </div>
         <hr />
         <Post :content="postContent.converted_message" :originalContent="postContent.original_message"
           :date="new Date(postContent.created_at)" :name="postContent.user_name"
-          :reactions="convertReactions(postContent.reactions, postContent.my_reactions)" :id="postContent.id"
+          :reactions="convertReactions(postContent.reactions, postContent.my_reactions)" :id="postContent.id" detail
           @react="loadPost" />
         <hr />
         <NewPostSection :parent-id="postContent.id" @submit="loadPost" />

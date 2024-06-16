@@ -73,8 +73,8 @@ const vTwemoji = {
         <div class="post-message">
           {{ content }}
         </div>
-        <div v-if="!detail" class="original-message">元のメッセージ : {{ originalContent }}</div>
-        <div v-if="detail" class="detail-original-message">元のメッセージ : {{ originalContent }}</div>
+        <div v-if="!detail" class="original-message">{{ originalContent }}</div>
+        <div v-if="detail" class="detail-original-message">{{ originalContent }}</div>
       </div>
       <div class="post-reactions">
         <button v-for="reaction in copiedReactions" :key="reaction.id" class="post-reaction"
@@ -148,7 +148,7 @@ const vTwemoji = {
       opacity: 0%;
       transition: all 0.2s ease-out;
       z-index: 1;
-      bottom: -38px;
+      bottom: -34px;
       left: 0;
       height: 30px;
       transform: translateY(-16px);
@@ -158,6 +158,11 @@ const vTwemoji = {
       visibility: visible;
       opacity: 100%;
       transform: translateY(0);
+    }
+
+    .detail-original-message {
+      color: var(--dimmed-text-color);
+      margin-bottom: 8px;
     }
 
     .post-reactions {
