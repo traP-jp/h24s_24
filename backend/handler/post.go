@@ -24,9 +24,15 @@ type PostRepository interface {
 	GetChildrenCountByParentIDs(ctx context.Context, parentIDs []uuid.UUID) (map[uuid.UUID]int, error)
 }
 
+type PostConverter interface {
+	ConvertMessage(ctx context.Context, originalMessage string) (string, error)
+}
+
 type PostHandler struct {
 	PostRepository     PostRepository
 	ReactionRepository ReactionRepository
+
+	pc PostConverter
 }
 
 type postPostsRequest struct {
@@ -37,7 +43,7 @@ type postPostsRequest struct {
 type postPostsResponse struct {
 	OriginalMessage  string    `json:"original_message"`
 	ConvertedMessage string    `json:"converted_message"`
-	PostID           uuid.UUID `json:"post_id"`
+	PostID           uuid.UUID `json:"id"`
 	CreatedAt        time.Time `json:"created_at"`
 	ParentID         uuid.UUID `json:"parent_id"`
 	RootID           uuid.UUID `json:"root_id"`
@@ -54,7 +60,7 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 	}
 
 	var username string
-	username, err = getUsername(c)
+	username, err = getUserName(c)
 	if err != nil {
 		log.Printf("failed to get username: %v\n", err)
 		return echo.NewHTTPError(http.StatusUnauthorized, "failed to get username")
@@ -66,7 +72,11 @@ func (ph *PostHandler) PostPostsHandler(c echo.Context) error {
 		parentID = postID
 	}
 
-	convertedMessage := post.Message
+	convertedMessage, err := ph.pc.ConvertMessage(ctx, post.Message)
+	if err != nil {
+		log.Printf("failed to convert message: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to convert message")
+	}
 
 	var rootID uuid.UUID
 	rootID, err = ph.PostRepository.CreatePost(ctx, postID, post.Message, convertedMessage, username, parentID)
@@ -97,6 +107,7 @@ type GetPostsResponse struct {
 	RootID           uuid.UUID       `json:"rootID"`
 	Reactions        []reactionCount `json:"reactions"`
 	CreatedAt        time.Time       `json:"createdAt"`
+	MyReactions      []int           `json:"myReactions"`
 }
 
 type reactionCount struct {
@@ -168,6 +179,12 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 		postReactionsMap[post.ID] = reactions
 	}
 
+	loginUserName, err := getUserName(c)
+	if err != nil {
+		log.Printf("failed to get username: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get username")
+	}
+
 	res := make([]GetPostsResponse, 0, len(posts))
 	for _, post := range posts {
 		r := GetPostsResponse{
@@ -187,6 +204,18 @@ func (ph *PostHandler) GetPostsHandler(c echo.Context) error {
 			reactions = append(reactions, r)
 		}
 		r.Reactions = reactions
+
+		userReactions, err := ph.ReactionRepository.GetReactionsByUserName(ctx, post.ID, loginUserName)
+		if err != nil {
+			log.Printf("failed to get user reactions: %v\n", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get user reactions")
+		}
+		userReactionIDs := make([]int, 0, len(userReactions))
+		for _, userReaction := range userReactions {
+			userReactionIDs = append(userReactionIDs, userReaction.ReactionID)
+		}
+		r.MyReactions = userReactionIDs
+
 		res = append(res, r)
 	}
 
@@ -198,6 +227,7 @@ type getPostResponse struct {
 	UserName         string          `json:"user_name"`
 	OriginalMessage  string          `json:"original_message"`
 	ConvertedMessage string          `json:"converted_message"`
+	MyReactions      []int           `json:"my_reactions"`
 	Reactions        []reactionCount `json:"reactions"`
 	Children         []postInfo      `json:"children"`
 	Ancestors        []postInfo      `json:"ancestors"`
@@ -212,12 +242,18 @@ type postInfo struct {
 		UserName         string          `json:"user_name"`
 		CreatedAt        time.Time       `json:"created_at"`
 		Reactions        []reactionCount `json:"reactions"`
+		MyReactions      []int           `json:"my_reactions"`
 	} `json:"post"`
 	ChildrenCount int `json:"children_count"`
 }
 
 func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 	ctx := c.Request().Context()
+	loginUserName, err := getUserName(c)
+	if err != nil {
+		log.Printf("failed to get username: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get username")
+	}
 
 	postID, err := uuid.Parse(c.Param("postID"))
 	if err != nil {
@@ -247,12 +283,23 @@ func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 		})
 	}
 
+	myReactions, err := ph.ReactionRepository.GetReactionsByUserName(ctx, post.ID, loginUserName)
+	if err != nil {
+		log.Printf("failed to get reactions by user name: %v\n", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions by user name")
+	}
+	myReactionIDs := make([]int, 0, len(myReactions))
+	for _, myReaction := range myReactions {
+		myReactionIDs = append(myReactionIDs, myReaction.ReactionID)
+	}
+
 	res := getPostResponse{
 		ID:               post.ID,
 		UserName:         post.UserName,
 		OriginalMessage:  post.OriginalMessage,
 		ConvertedMessage: post.ConvertedMessage,
 		Reactions:        resReactions,
+		MyReactions:      myReactionIDs,
 		CreatedAt:        post.CreatedAt,
 	}
 
@@ -289,6 +336,16 @@ func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 
 		postInfos := make([]postInfo, 0, len(posts))
 		for _, post := range posts {
+			myReactions, err := ph.ReactionRepository.GetReactionsByUserName(ctx, post.ID, loginUserName)
+			if err != nil {
+				log.Printf("failed to get reactions by user name: %v\n", err)
+				return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions by user name")
+			}
+			myReactionIDs := make([]int, 0, len(myReactions))
+			for _, myReaction := range myReactions {
+				myReactionIDs = append(myReactionIDs, myReaction.ReactionID)
+			}
+
 			pInfo := postInfo{
 				Post: struct {
 					ID               uuid.UUID       `json:"id"`
@@ -297,12 +354,14 @@ func (ph *PostHandler) GetPostHandler(c echo.Context) error {
 					UserName         string          `json:"user_name"`
 					CreatedAt        time.Time       `json:"created_at"`
 					Reactions        []reactionCount `json:"reactions"`
+					MyReactions      []int           `json:"my_reactions"`
 				}{
 					ID:               post.ID,
 					OriginalMessage:  post.OriginalMessage,
 					ConvertedMessage: post.ConvertedMessage,
 					UserName:         post.UserName,
 					CreatedAt:        post.CreatedAt,
+					MyReactions:      myReactionIDs,
 				},
 				ChildrenCount: postIDChildrenCountMap[post.ID],
 			}

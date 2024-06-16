@@ -1,4 +1,5 @@
 @import './base.css';
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
 
 :root {
   --accent-color: #ff922b;
@@ -14,4 +15,11 @@
   --primary-text-color: #1111111;
   --dimmed-text-color: #888888;
   --dimmed-border-color: #dddddd;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: normal;
+  font-style: normal;
 }

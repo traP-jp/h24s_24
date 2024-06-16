@@ -17,6 +17,7 @@ type ReactionRepository interface {
 	GetReactionsByPostID(ctx context.Context, postID uuid.UUID) ([]*domain.Reaction, error)
 	GetReactionsByPostIDs(ctx context.Context, postIDs []uuid.UUID) (map[uuid.UUID][]*domain.Reaction, error)
 	PostReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error
+	GetReactionsByUserName(ctx context.Context, postID uuid.UUID, userName string) ([]*domain.UserReaction, error)
 }
 
 type ReactionHandler struct {
@@ -41,7 +42,7 @@ func (rh *ReactionHandler) PostReactionHandler(c echo.Context) error {
 		return c.JSON(400, "invalid reaction id")
 	}
 
-	userName, err := getUsername(c)
+	userName, err := getUserName(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, "failed to get username")
 	}
