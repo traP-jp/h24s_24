@@ -39,7 +39,6 @@ loadPost();
           :name="post.user_name"
           :reactions="convertReactions(post.reactions, post.my_reactions)"
           :id="post.id"
-          @react="loadPost"
         />
       </div>
     </div>
