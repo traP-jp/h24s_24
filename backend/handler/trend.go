@@ -36,6 +36,12 @@ func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 	since := until.Add(-time.Hour * 12)
 	postLimit := 30
 
+	loginUser, err := getUserName(c)
+	if err != nil {
+		log.Println("failed to get user name: ", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get user name")
+	}
+
 	ctx := c.Request().Context()
 
 	reactionIDRef := (*int)(nil)
@@ -79,7 +85,7 @@ func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 			reactionsSlice[i] = &reaction{v.ReactionID, v.Count}
 		}
 
-		myReactions, err := tr.rr.GetReactionsByUserName(ctx, post.ID, post.UserName)
+		myReactions, err := tr.rr.GetReactionsByUserName(ctx, post.ID, loginUser)
 		if err != nil {
 			log.Printf("failed to get my reactions: %v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, "failed to get my reaction")
