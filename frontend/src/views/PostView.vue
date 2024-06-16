@@ -5,6 +5,7 @@ import { getPost, type GetPostResponse } from '@/features/api';
 import { ref } from 'vue';
 import Post from '@/components/Post.vue';
 import NewPostSection from '@/components/NewPostSection.vue';
+import { convertReactions } from '@/features/reactions';
 
 const route = useRoute();
 if (route.params.id == undefined) {
@@ -27,7 +28,7 @@ loadPost();
             :content="ancestor.post.converted_message"
             :date="new Date(ancestor.post.created_at)"
             :name="ancestor.post.user_name"
-            :reactions="getReactions(ancestor.post.reactions, ancestor.post.my_reactions)"
+            :reactions="convertReactions(ancestor.post.reactions, ancestor.post.my_reactions)"
             :id="ancestor.post.id"
             @react="loadPost"
           />
