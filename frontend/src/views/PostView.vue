@@ -14,7 +14,6 @@ if (route.params.id == undefined) {
 const id = route.params.id as string;
 const postContent = ref<GetPostResponse>();
 const loadPost = () => {
-  console.log('aaa');
   getPost(id).then((e) => (postContent.value = e));
 };
 loadPost();
@@ -64,7 +63,7 @@ const convertReactions = (src: Reaction[], my: number[]) => {
         @react="loadPost"
       />
       <hr />
-      <NewPostSection name="" :parent-id="postContent.id" />
+      <NewPostSection name="" :parent-id="postContent.id" @submit="loadPost" />
       <!-- TODO: -->
       <div v-for="child in postContent.children" :key="child.post.id">
         <Post

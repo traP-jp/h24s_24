@@ -21,13 +21,8 @@ const post = () => {
     message: inputContent.value,
     parent_id: props.parentId,
   });
-
-  console.log({
-    message: inputContent.value,
-    parent_id: props.parentId,
-  });
-  inputContent.value = '';
   emit('submit');
+  inputContent.value = '';
 };
 </script>
 
