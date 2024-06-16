@@ -2,9 +2,9 @@
 import Avatar from '@/components/Avatar.vue';
 import 'moment/dist/locale/ja';
 import moment from 'moment-timezone';
-import {effect, ref} from 'vue';
-import {reactionIcons} from '@/features/reactions';
-import {deleteReaction, postReaction} from '@/features/api';
+import { effect, ref } from 'vue';
+import { reactionIcons } from '@/features/reactions';
+import { deleteReaction, postReaction } from '@/features/api';
 import twemoji from 'twemoji';
 
 type Reaction = { id: number; count: number; clicked: boolean };
@@ -61,7 +61,7 @@ const vTwemoji = {
   <router-link :to="`/posts/${id}/`" class="post-link">
     <div class="post">
       <div class="post-author-icon">
-        <Avatar size="48px" :name="name"/>
+        <Avatar size="48px" :name="name" />
       </div>
       <div class="post-content">
         <div class="post-header">
@@ -73,17 +73,17 @@ const vTwemoji = {
         </div>
         <div class="post-reactions">
           <button
-              v-for="reaction in copiedReactions"
-              :key="reaction.id"
-              class="post-reaction"
-              :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
-              @click="
-            (e) => {
-              toggleReaction(reaction);
-              e.stopPropagation();
-              e.preventDefault();
-            }
-          "
+            v-for="reaction in copiedReactions"
+            :key="reaction.id"
+            class="post-reaction"
+            :class="{ clicked: reaction.clicked, ripple: newReaction === reaction.id }"
+            @click="
+              (e) => {
+                toggleReaction(reaction);
+                e.stopPropagation();
+                e.preventDefault();
+              }
+            "
           >
             <span class="post-reaction-icon" v-twemoji>{{ reactionIcons[reaction.id] }}</span>
             <span class="post-reaction-count">{{ reaction.count }}</span>
