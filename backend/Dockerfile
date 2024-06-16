@@ -1,5 +1,10 @@
 FROM golang:1.22.4-alpine
 
+RUN --mount=type=cache,target=/var/cache/apk \
+  apk --update add tzdata git && \
+  cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
+  apk del tzdata
+
 WORKDIR /app
 
 RUN apk upgrade && apk add git
