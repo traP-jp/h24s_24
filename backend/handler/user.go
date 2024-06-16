@@ -119,7 +119,7 @@ func (uh *UserHandler) GetUserHandler(c echo.Context) error {
 			RootID:           post.RootID.String(),
 			Reactions:        reCount,
 			MyReactions:      myReactionIDs,
-			CreatedAt:        post.CreatedAt,
+			CreatedAt:        post.CreatedAt.Local(),
 		})
 	}
 
