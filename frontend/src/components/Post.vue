@@ -54,7 +54,7 @@ const shareText = computed(() =>
         </div>
         <div class="foot-action-container">
           <PostReactions :postId="id" :reactions="reactions" @react="emit('react')" />
-          <div class="share-traQ">
+          <div class="share-traQ" title="traQで共有">
             <a
               :href="`https://q.trap.jp/share-target?text=${shareText}`"
               target="_blank"
