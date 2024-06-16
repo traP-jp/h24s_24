@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MainLayout from '@/components/MainLayout.vue';
 import { useRoute } from 'vue-router';
-import {getMe, getPost, type GetPostResponse} from '@/features/api';
+import { getMe, getPost, type GetPostResponse } from '@/features/api';
 import { ref } from 'vue';
 import Post from '@/components/Post.vue';
 import { convertReactions } from '@/features/reactions';
