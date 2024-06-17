@@ -65,7 +65,7 @@ func (rh *ReactionHandler) DeleteReactionHandler(c echo.Context) error {
 
 	reactions, err := rh.rr.GetReactionsByPostID(ctx, postID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "failed to get reaction")
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
 	}
 
 	response := make([]*deleteReactionResponse, len(reactions))
