@@ -59,6 +59,7 @@ const shareText = computed(() =>
               :href="`https://q.trap.jp/share-target?text=${shareText}`"
               target="_blank"
               rel="noreferrer noopener"
+              @click="(e) => e.stopPropagation()"
             >
               <Icon icon="mdi:share-variant" />
             </a>
