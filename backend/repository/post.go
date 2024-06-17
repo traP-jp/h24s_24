@@ -200,8 +200,8 @@ func (pr *PostRepository) GetAncestors(ctx context.Context, postID uuid.UUID) ([
 	}
 
 	var posts []post
-	err = pr.db.Select(&posts, 
-		"WITH RECURSIVE parent_cte AS (" +
+	err = pr.db.Select(&posts,
+		"WITH RECURSIVE parent_cte AS ("+
 			"SELECT id, user_name, original_message, converted_message, parent_id, root_id, created_at "+
 			"FROM posts "+
 			"WHERE id = ? "+
@@ -209,10 +209,10 @@ func (pr *PostRepository) GetAncestors(ctx context.Context, postID uuid.UUID) ([
 			"SELECT p.id AS `id`, p.user_name AS `user_name`, p.original_message AS `original_message`, p.converted_message AS `converted_message`, p.parent_id AS `parent_id`, p.root_id AS `root_id`, p.created_at AS `created_at` "+
 			"FROM posts p JOIN parent_cte c ON p.id = c.parent_id "+
 			"WHERE p.id <> p.parent_id"+
-		") "+
-		"SELECT id, user_name, original_message, converted_message, parent_id, root_id, created_at "+
-		"FROM posts WHERE id = ? AND id <> ? AND id <> ? "+
-		"UNION ALL SELECT * FROM parent_cte ORDER BY created_at ASC;", p.ParentID, p.RootID, p.ID, p.ParentID)
+			") "+
+			"SELECT id, user_name, original_message, converted_message, parent_id, root_id, created_at "+
+			"FROM posts WHERE id = ? AND id <> ? AND id <> ? "+
+			"UNION ALL SELECT * FROM parent_cte ORDER BY created_at ASC;", p.ParentID, p.RootID, p.ID, p.ParentID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get ancestors: %w", err)
 	}
