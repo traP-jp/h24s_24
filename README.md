@@ -1,11 +1,14 @@
-# h24s_24
+# 発火村 (はっかむら)
+
+![](./frontend/public/og.png)
 
 ## メンバー
 
-ikura-hamu
-tidus
-zoi_dayo
-Alietty
+- ikura-hamu (リーダー / バックエンド)
+- cp20 (フロントエンド)
+- tidus (バックエンド)
+- zoi_dayo (フロントエンド)
+- Alietty (フロントエンド)
 
 ## 開発者クイックスタート
 
@@ -13,7 +16,7 @@ Alietty
 
 #### 動かすために最低限必要
 
-- Docker, Docker Compose
+- Docker
 
 #### 開発に必要
 
