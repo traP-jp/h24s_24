@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -76,20 +75,16 @@ type reactionCount struct {
 	Count  int       `db:"reaction_count"`
 }
 
-func (rr *ReactionRepository) GetReactionCountsGroupedByPostID(ctx context.Context, reactionID *int, since time.Time, until time.Time) ([]*domain.ReactionCount, error) {
-	if !since.Before(until) {
-		return nil, errors.New("invalid arguments")
-	}
-
+func (rr *ReactionRepository) GetReactionCountsGroupedByPostID(ctx context.Context, reactionID *int) ([]*domain.ReactionCount, error) {
 	var (
 		counts []*reactionCount
 		err    error
 	)
 
 	if reactionID == nil {
-		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE created_at BETWEEN ? AND ? GROUP BY post_id ORDER BY reaction_count DESC", since, until)
+		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE created_at GROUP BY post_id ORDER BY reaction_count DESC")
 	} else {
-		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE reaction_id=? AND created_at BETWEEN ? AND ? GROUP BY post_id ORDER BY reaction_count DESC", *reactionID, since, until)
+		err = rr.DB.Select(&counts, "SELECT post_id, COUNT(*) AS reaction_count FROM posts_reactions WHERE reaction_id=? AND created_at GROUP BY post_id ORDER BY reaction_count DESC", *reactionID)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to get reactions: %w", err)
