@@ -15,7 +15,7 @@ import (
 )
 
 type ReactionRepository interface {
-	DeleteReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) ([]*domain.Reaction, error)
+	DeleteReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error
 	GetReactionsByPostID(ctx context.Context, postID uuid.UUID) ([]*domain.Reaction, error)
 	GetReactionsByPostIDs(ctx context.Context, postIDs []uuid.UUID) (map[uuid.UUID][]*domain.Reaction, error)
 	GetReactionCountsGroupedByPostID(ctx context.Context, reactionID *int, since time.Time, until time.Time) ([]*domain.ReactionCount, error)
@@ -55,12 +55,18 @@ func (rh *ReactionHandler) DeleteReactionHandler(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get username")
 	}
 
-	reactions, err := rh.rr.DeleteReaction(ctx, postID, reactionID, username)
+	err = rh.rr.DeleteReaction(ctx, postID, reactionID, username)
 	if errors.Is(err, domain.ReactionNotFoundError) {
 		return echo.NewHTTPError(http.StatusBadRequest, "reaction not found")
 	}
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to delete reaction")
+	}
+
+	reactions, err := rh.rr.GetReactionsByPostID(ctx, postID)
+	if err != nil {
+		log.Println("failed to get reactions: ", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")
 	}
 
 	response := make([]*deleteReactionResponse, len(reactions))
