@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/traP-jp/h24s_24/converter"
 	"github.com/traP-jp/h24s_24/converter/mock"
+	"github.com/traP-jp/h24s_24/converter/random"
 	"github.com/traP-jp/h24s_24/repository"
 )
 
@@ -30,6 +31,9 @@ func Start() {
 	if local, err := strconv.ParseBool(os.Getenv("LOCAL")); err == nil && local {
 		log.Println("using mock converter")
 		cvt = &mock.MockConverter{}
+	} else if withoutOpenAI, err := strconv.ParseBool(os.Getenv("WITHOUT_OPENAI")); err == nil && withoutOpenAI {
+		log.Println("using random converter")
+		cvt = random.NewConverter(pr)
 	} else {
 		cvt, err = converter.NewOpenAI()
 		if err != nil {

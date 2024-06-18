@@ -8,7 +8,7 @@ import (
 )
 
 type PostRepository interface {
-	GetRandomPost(ctx context.Context) (domain.Post, error)
+	GetRandomPost(ctx context.Context) (*domain.Post, error)
 }
 
 type Converter struct {
