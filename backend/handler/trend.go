@@ -32,8 +32,6 @@ type getTrendResponse struct {
 }
 
 func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
-	until := time.Now()
-	since := until.Add(-time.Hour * 12)
 	postLimit := 30
 
 	loginUser, err := getUserName(c)
@@ -54,7 +52,7 @@ func (tr *TrendHandler) GetTrendHandler(c echo.Context) error {
 		reactionIDRef = &reactionID
 	}
 
-	counts, err := tr.rr.GetReactionCountsGroupedByPostID(ctx, reactionIDRef, since, until)
+	counts, err := tr.rr.GetReactionCountsGroupedByPostID(ctx, reactionIDRef)
 	if err != nil {
 		log.Printf("failed to get reactions: %v\n", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get reactions")

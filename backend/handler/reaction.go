@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
@@ -18,7 +17,7 @@ type ReactionRepository interface {
 	DeleteReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error
 	GetReactionsByPostID(ctx context.Context, postID uuid.UUID) ([]*domain.Reaction, error)
 	GetReactionsByPostIDs(ctx context.Context, postIDs []uuid.UUID) (map[uuid.UUID][]*domain.Reaction, error)
-	GetReactionCountsGroupedByPostID(ctx context.Context, reactionID *int, since time.Time, until time.Time) ([]*domain.ReactionCount, error)
+	GetReactionCountsGroupedByPostID(ctx context.Context, reactionID *int) ([]*domain.ReactionCount, error)
 	PostReaction(ctx context.Context, postID uuid.UUID, reactionID int, userName string) error
 	GetReactionsByUserName(ctx context.Context, postID uuid.UUID, userName string) ([]*domain.UserReaction, error)
 }
